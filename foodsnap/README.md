@@ -1,4 +1,4 @@
-# foodsnap
+# FoodSnap
 
 A new Flutter project.
 
