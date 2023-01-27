@@ -1,6 +1,6 @@
 # MajorProject
 <p align ="center">
-    <img src="./assets/images/FoodSnapLogo.png" alt="food snap logo" />
+    <img src="D:\MajorProject\foodsnap\assets\images\FoodSnapLogo.png" alt="food snap logo" />
 </p>
 
 <p>
