@@ -1,4 +1,4 @@
-# MajorProject
+# FoodSnap
 <p align ="center">
     <img src="D:\MajorProject\foodsnap\assets\images\FoodSnapLogo.png" alt="food snap logo" />
 </p>
@@ -16,5 +16,5 @@
 
 - Clone the project
 ```
-    git clone https://github.com/Pratigya-Dhakal/Major-Project.git
+    git clone https://github.com/Pratigya-Dhakal/MajorProject-FoodSnap.git
 ```
