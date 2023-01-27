@@ -1,6 +1,6 @@
 # FoodSnap
 <p align ="center">
-    <img src="assets\images\FoodSnapLogo.png" alt="food snap logo" />
+    <img src="assets\images\FoodSnapLogo.png" alt="food snap logo" width='400px' height = '400px' />
 </p>
 
 <p>
