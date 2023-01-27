@@ -1,4 +1,4 @@
-# MajorProject
+# FoodSnap
 <p align ="center">
     <img src="D:\MajorProject\foodsnap\assets\images\FoodSnapLogo.png" alt="food snap logo" />
 </p>
