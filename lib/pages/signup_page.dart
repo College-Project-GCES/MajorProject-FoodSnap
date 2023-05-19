@@ -4,12 +4,11 @@ import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/login_page.dart';
 
-
 class SignUpPage extends StatelessWidget {
   SignUpPage({super.key});
 
   // text editing controllers
-  
+
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -19,8 +18,7 @@ class SignUpPage extends StatelessWidget {
   void signUpUser() {}
 
   @override
-  Widget build(BuildContext context) 
-  {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -28,12 +26,10 @@ class SignUpPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                child: Image.asset(
-                  "assets/images/FoodSnapLogo.png",
-                  height: 80,
-                  width: 80,
-                ),
+              Image.asset(
+                "assets/images/FoodSnapLogo.png",
+                height: 80,
+                width: 80,
               ),
               const Text(
                 'Sign Up',
@@ -41,7 +37,6 @@ class SignUpPage extends StatelessWidget {
                   color: Color(0xff2DB040),
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  
                 ),
               ),
               const SizedBox(height: 15),
@@ -146,17 +141,16 @@ class SignUpPage extends StatelessWidget {
                       "Login",
                       style: TextStyle(
                         color: Color(0xff2DB040),
-                        fontWeight: FontWeight.bold,      
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     onTap: () {
                       // Write Tap Code Here.
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        )
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginPage(),
+                          ));
                     },
                   )
                 ],

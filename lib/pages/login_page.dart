@@ -1,23 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/signup_page.dart';
 
-
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   // text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   // sign user in method
   void signUserIn() {}
 
   @override
-  Widget build(BuildContext context) 
-  {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -25,12 +24,10 @@ class LoginPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                child: Image.asset(
-                  "assets/images/FoodSnapLogo.png",
-                  height: 80,
-                  width: 80,
-                ),
+              Image.asset(
+                "assets/images/FoodSnapLogo.png",
+                height: 80,
+                width: 80,
               ),
               const Text(
                 'Log In',
@@ -38,7 +35,6 @@ class LoginPage extends StatelessWidget {
                   color: Color(0xff2DB040),
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  
                 ),
               ),
               const SizedBox(height: 15),
@@ -55,8 +51,8 @@ class LoginPage extends StatelessWidget {
 
               // username textfield
               MyTextField(
-                controller: usernameController,
-                hintText: 'Username',
+                controller: emailController,
+                hintText: 'Email',
                 obscureText: false,
               ),
 
@@ -147,17 +143,15 @@ class LoginPage extends StatelessWidget {
                       style: TextStyle(
                         color: Color(0xff2DB040),
                         fontWeight: FontWeight.bold,
-                          
                       ),
                     ),
                     onTap: () {
                       // Write Tap Code Here.
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SignUpPage(),
-                        )
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SignUpPage(),
+                          ));
                     },
                   )
                 ],
@@ -167,5 +161,11 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future signIn() async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim());
   }
 }
