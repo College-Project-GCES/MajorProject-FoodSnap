@@ -125,7 +125,10 @@ class SignUpPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   // google button
-                  SquareTile(imagePath: 'assets/images/google.png'),
+                  SquareTile(
+                    imagePath: 'assets/images/google.png',
+                    text: 'SignUp with Google',
+                  ),
                 ],
               ),
 

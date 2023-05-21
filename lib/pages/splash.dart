@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'package:foodsnap/pages/welcome.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -16,12 +16,13 @@ class _SplashState extends State<Splash> {
   }
 
   _navigatetohome() async {
-    await Future.delayed(Duration(milliseconds: 1500), () {});
+    await Future.delayed(const Duration(milliseconds: 1500), () {});
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: ((context) => MyHomePage(
-                  title: 'foodsnap',
+            builder: ((context) => const WelcomePage(
+                  title: 'Welcomepage',
                 ))));
   }
 
@@ -35,12 +36,10 @@ class _SplashState extends State<Splash> {
           Container(
             height: 100,
             width: 100,
-            color: Colors.blue,
+            color: Colors.white,
           ),
-          Container(
-            child: Text('splash screen',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          ),
+          const Text('splash screen',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         ],
       )),
     );
