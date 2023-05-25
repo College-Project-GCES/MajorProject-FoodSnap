@@ -16,11 +16,12 @@ class _SplashState extends State<Splash> {
   }
 
   _navigatetohome() async {
-    await Future.delayed(Duration(milliseconds: 1500), () {});
+    await Future.delayed(const Duration(milliseconds: 1500), () {});
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: ((context) => MyHomePage(
+            builder: ((context) => const MyHomePage(
                   title: 'foodsnap',
                 ))));
   }
@@ -37,10 +38,8 @@ class _SplashState extends State<Splash> {
             width: 100,
             color: Colors.blue,
           ),
-          Container(
-            child: Text('splash screen',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          ),
+          const Text('splash screen',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         ],
       )),
     );

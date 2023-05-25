@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
+import 'package:foodsnap/pages/FoodlistPage.dart';
 import 'package:foodsnap/pages/signup_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -87,7 +88,14 @@ class LoginPage extends StatelessWidget {
               // sign in button
               MyButton(
                 text: "Log In",
-                onTap: signUserIn,
+                onTap: () {
+                  // Write Tap Code Here.
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FoodlistPage(),
+                      ));
+                },
               ),
 
               const SizedBox(height: 15),

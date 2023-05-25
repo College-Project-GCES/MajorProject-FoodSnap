@@ -26,12 +26,10 @@ class SignUpPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                child: Image.asset(
-                  "assets/images/FoodSnapLogo.png",
-                  height: 80,
-                  width: 80,
-                ),
+              Image.asset(
+                "assets/images/FoodSnapLogo.png",
+                height: 80,
+                width: 80,
               ),
               const Text(
                 'Sign Up',
