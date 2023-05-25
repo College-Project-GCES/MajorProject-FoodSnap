@@ -24,17 +24,27 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: 200.0,
                   height: 200.0,
                 ),
-                RaisedButton(
-                  onPressed: () {
-                    // Perform some action when the button is pressed
-                  },
+                ElevatedButton(
                   child: Text("Signup with google"),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontStyle: FontStyle.normal),
+                  ),
+                  onPressed: () {},
                 ),
-                RaisedButton(
-                  onPressed: () {
-                    // Perform some action when the button is pressed
-                  },
-                  child: Text("Signup with email"),
+                ElevatedButton(
+                  child: Text('Signup with email'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontStyle: FontStyle.normal),
+                  ),
+                  onPressed: () {},
                 ),
               ],
             ),
