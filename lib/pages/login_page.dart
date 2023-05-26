@@ -1,19 +1,35 @@
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
+import 'package:foodsnap/pages/forgot_password.dart';
 import 'package:foodsnap/pages/signup_page.dart';
+import 'package:foodsnap/pages/utils.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
 
   // text editing controllers
   final emailController = TextEditingController();
+
   final passwordController = TextEditingController();
 
-  // sign user in method
-  void signUserIn() {}
+  Utils utils = Utils();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,16 +70,36 @@ class LoginPage extends StatelessWidget {
                 controller: emailController,
                 hintText: 'Email',
                 obscureText: false,
+                validator: (value) {
+                  // Check if this field is empty
+                  if (value == null || value.isEmpty) {
+                    return 'This field is required';
+                  }
+
+                  // using regular expression
+                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                    return "Please enter a valid email address";
+                  }
+
+                  // the email is valid
+                  return null;
+                },
               ),
 
               const SizedBox(height: 10),
-
-              // password textfield
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
+                validator: (value) {
+                  if (value != null && value.length < 7) {
+                    return 'Enter minimum 7 characters';
+                  } else {
+                    return null;
+                  }
+                },
                 obscureText: true,
               ),
+              // password textfield
 
               const SizedBox(height: 10),
 
@@ -73,9 +109,19 @@ class LoginPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.grey[600]),
+                    GestureDetector(
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      onTap: () {
+                        // Write Tap Code Here.
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgotPassword(),
+                            ));
+                      },
                     ),
                   ],
                 ),
@@ -84,9 +130,26 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 25),
 
               // sign in button
-              MyButton(
-                text: "Log In",
-                onTap: signUserIn,
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: emailController.text.trim(),
+                        password: passwordController.text.trim());
+                  } on FirebaseAuthException catch (e) {
+                    print(e);
+                    // Utils.showSnackBar(e.message);
+                    utils.showSnackBar('Try with new email address');
+                  }
+                  if (_formKey.currentState!.validate()) {
+                    Navigator.pushNamed(context, 'bottom_nav');
+                  } else {
+                    print('It is not working');
+                  }
+                },
+                child: const MyButton(
+                  text: "Log In",
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -153,7 +216,7 @@ class LoginPage extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SignUpPage(),
+                            builder: (context) => const SignUpPage(),
                           ));
                     },
                   )
@@ -165,10 +228,4 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-
-//   Future signIn() async {
-//     await FirebaseAuth.instance.signInWithEmailAndPassword(
-//         email: emailController.text.trim(),
-//         password: passwordController.text.trim());
-//   }
 }

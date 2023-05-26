@@ -1,25 +1,38 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/login_page.dart';
 
-class SignUpPage extends StatelessWidget {
-  SignUpPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
   // text editing controllers
-
+  final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  // sign user in method
-  void signUpUser() {}
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
@@ -52,40 +65,99 @@ class SignUpPage extends StatelessWidget {
               const SizedBox(height: 15),
               MyTextField(
                 controller: emailController,
-                hintText: 'Email',
+                hintText: 'Email address',
                 obscureText: false,
+                validator: (value) {
+                  // Check if this field is empty
+                  if (value == null || value.isEmpty) {
+                    return 'This field is required';
+                  }
+
+                  // using regular expression
+                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                    return "Please enter a valid email address";
+                  }
+
+                  // the email is valid
+                  return null;
+                },
               ),
               // username textfield
               const SizedBox(height: 10),
 
               MyTextField(
                 controller: usernameController,
-                hintText: 'Username',
+                hintText: 'Full Name',
                 obscureText: false,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return ('Username is required');
+                  } else {
+                    return (null);
+                  }
+                },
               ),
 
               const SizedBox(height: 10),
 
               // password textfield
               MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-              ),
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  validator: (value) {
+                    if (value != null && value.length < 7) {
+                      return 'Enter minimum 7 characters';
+                    } else {
+                      return null;
+                    }
+                  }),
               const SizedBox(height: 10),
 
               MyTextField(
-                controller: confirmPasswordController,
-                hintText: 'Confirm Password',
-                obscureText: true,
-              ),
+                  controller: confirmPasswordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  validator: (value) {
+                    if (value != null && value.length < 7) {
+                      return 'Enter minimum 7 characters';
+                    } else {
+                      return null;
+                    }
+                  }),
 
               const SizedBox(height: 10),
 
               // sign in button
-              MyButton(
-                text: "Sign Up",
-                onTap: signUpUser,
+              TextButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: emailController.text.trim(),
+                      password: passwordController.text.trim());
+
+                  final userId = FirebaseAuth.instance.currentUser?.uid;
+                  print(userId);
+                  print(FirebaseAuth.instance.currentUser?.email);
+
+                  final docUser =
+                      FirebaseFirestore.instance.collection('users');
+
+                  final user = User(
+                      username: usernameController.text,
+                      userEmailAddress: emailController.text);
+
+                  final json = user.toJson();
+
+                  await docUser.doc(userId).set(json);
+
+                  if (_formKey.currentState!.validate()) {
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushNamed(context, 'login');
+                  }
+                },
+                child: const MyButton(
+                  text: "Sign Up",
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -152,7 +224,7 @@ class SignUpPage extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LoginPage(),
+                            builder: (context) => const LoginPage(),
                           ));
                     },
                   )
@@ -164,4 +236,27 @@ class SignUpPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class User {
+  final String id;
+  final String username;
+  final String userEmailAddress;
+
+  User({
+    this.id = '',
+    required this.username,
+    required this.userEmailAddress,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': username,
+        'email': userEmailAddress,
+      };
+
+  static User fromJson(Map<String, dynamic> Function() json) => User(
+        username: 'name',
+        userEmailAddress: 'email',
+      );
 }
