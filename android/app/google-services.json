@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "638557750080",
-    "project_id": "foodsnapauth",
-    "storage_bucket": "foodsnapauth.appspot.com"
+    "project_number": "724321742837",
+    "project_id": "foodsnapauth-a249f",
+    "storage_bucket": "foodsnapauth-a249f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:638557750080:android:14bcb3b34f030abbf870a5",
+        "mobilesdk_app_id": "1:724321742837:android:8f8b98e443e4aee85ababc",
         "android_client_info": {
           "package_name": "com.example.foodsnap"
         }
       },
       "oauth_client": [
         {
-          "client_id": "638557750080-nnfa39d9s0kl1a6p0umrkdnfs44ds97e.apps.googleusercontent.com",
+          "client_id": "724321742837-u3vhvl8t3op9097cr8p4ks929rj1enr7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA2sIaNJGdQ5RtX5j7tXewZj9LvzOKW948"
+          "current_key": "AIzaSyB0iBVmuXJBE7ABVqoed02-cK3GpEpONjE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "638557750080-nnfa39d9s0kl1a6p0umrkdnfs44ds97e.apps.googleusercontent.com",
+              "client_id": "724321742837-ok6obo4s2jbjt273f998u4qrb892pl3s.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

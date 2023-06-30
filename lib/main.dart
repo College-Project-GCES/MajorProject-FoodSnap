@@ -1,5 +1,6 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:foodsnap/pages/verify_user.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
@@ -9,7 +10,7 @@ import 'pages/splash.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }
@@ -33,8 +34,8 @@ class MyApp extends StatelessWidget {
         routes: {
           'splash': (context) => const Splash(),
           'welcome': (context) => const WelcomePage(),
-          'login_page': (context) => const LoginPage(),
-          'signup_page': (context) => const SignUpPage(),
+          'login': (context) => const LoginPage(),
+          'signup': (context) => const SignUpPage(),
           'home_page': (context) => const HomePage(
                 username: '',
               ),

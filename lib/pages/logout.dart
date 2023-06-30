@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:foodsnap/pages/welcome.dart';
 import 'login_page.dart';
 
 class LogoutScreen extends StatefulWidget {
@@ -46,7 +47,7 @@ class _LogoutScreenState extends State<LogoutScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  const LoginPage()),
+                                  const WelcomePage()),
                           ModalRoute.withName('/'));
                     },
                     child: const Text(

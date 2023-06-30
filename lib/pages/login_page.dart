@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
@@ -6,6 +7,7 @@ import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/forgot_password.dart';
 import 'package:foodsnap/pages/signup_page.dart';
 import 'package:foodsnap/pages/utils.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,11 +18,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   // text editing controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
+
+  bool _isLoading = false;
 
   Utils utils = Utils();
 
@@ -29,6 +33,93 @@ class _LoginPageState extends State<LoginPage> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<UserCredential> _signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return await _auth.signInWithCredential(credential);
+  }
+
+  Future<void> _signInWithEmailAndPassword() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    } catch (e) {
+      // Handle login errors
+      print(e);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to login. Please check your credentials.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _signUpWithEmailAndPassword() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    } catch (e) {
+      // Handle signup errors
+      print(e);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to sign up. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -131,29 +222,13 @@ class _LoginPageState extends State<LoginPage> {
 
               // sign in button
               TextButton(
-                onPressed: () async {
-                  try {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: emailController.text.trim(),
-                        password: passwordController.text.trim());
-                  } on FirebaseAuthException catch (e) {
-                    print(e);
-                    // Utils.showSnackBar(e.message);
-                    utils.showSnackBar('Try with new email address');
-                  }
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.pushNamed(context, 'bottom_nav');
-                  } else {
-                    print('It is not working');
-                  }
-                },
+                onPressed: _isLoading ? null : _signInWithEmailAndPassword,
                 child: const MyButton(
                   text: "Log In",
                 ),
               ),
 
               const SizedBox(height: 15),
-
               // or continue with
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -185,15 +260,12 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 15),
 
               // google sign in buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  // google button
-                  SquareTile(
-                    imagePath: 'assets/images/google.png',
-                    text: 'SignUp with Google',
-                  ),
-                ],
+              TextButton(
+                onPressed: _isLoading ? null : _signInWithGoogle,
+                child: const SquareTile(
+                  imagePath: 'assets/images/google.png',
+                  text: "Log In",
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -203,23 +275,12 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Not a member? "),
-                  GestureDetector(
-                    child: const Text(
-                      "Register Now",
-                      style: TextStyle(
-                        color: Color(0xff2DB040),
-                        fontWeight: FontWeight.bold,
-                      ),
+                  TextButton(
+                    onPressed: _isLoading ? null : _signUpWithEmailAndPassword,
+                    child: const MyButton(
+                      text: 'Sign Up',
                     ),
-                    onTap: () {
-                      // Write Tap Code Here.
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpPage(),
-                          ));
-                    },
-                  )
+                  ),
                 ],
               ),
             ],

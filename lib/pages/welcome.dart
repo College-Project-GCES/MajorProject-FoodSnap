@@ -49,11 +49,11 @@ class _WelcomePageState extends State<WelcomePage> {
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => const SignUpPage(),
-                    //     ));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpPage(),
+                        ));
                   },
                   child: const SquareTile(
                     imagePath: 'assets/images/Gmaillogo.png',
