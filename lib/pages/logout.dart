@@ -1,3 +1,4 @@
+import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/pages/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class _LogoutScreenState extends State<LogoutScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  const LoginPage()),
+                                  const MainScreen()),
                           ModalRoute.withName('/'));
                     },
                     child: const Text(

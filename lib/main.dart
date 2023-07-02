@@ -1,7 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:foodsnap/pages/verify_user.dart';
+import 'package:foodsnap/auth/main_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/home_page.dart';
@@ -21,25 +21,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: AnimatedSplashScreen(
-          splash: "assets/images/foodsnaplogo1.png",
-          duration: 2000,
-          splashTransition: SplashTransition.fadeTransition,
-          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      debugShowCheckedModeBanner: false,
+      home: AnimatedSplashScreen(
+        splash: "assets/images/foodsnaplogo1.png",
+        duration: 2000,
+        splashTransition: SplashTransition.fadeTransition,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
 
-          // ignore: prefer_const_constructors
-          nextScreen: WelcomePage(),
-        ),
-        routes: {
-          'splash': (context) => const Splash(),
-          'welcome': (context) => const WelcomePage(),
-          'login': (context) => const LoginPage(),
-          'signup': (context) => const SignUpPage(),
-          'home_page': (context) => const HomePage(
-                username: '',
-              ),
-          'verified_user': (context) => const VerifiedUser(),
-        });
+        // ignore: prefer_const_constructors
+        nextScreen: WelcomePage(),
+      ),
+    );
   }
 }

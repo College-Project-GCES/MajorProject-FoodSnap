@@ -11,7 +11,6 @@ class MyTextField extends StatelessWidget {
     required this.controller,
     required this.hintText,
     required this.obscureText,
-    required String? Function(dynamic value) validator,
   });
 
   @override

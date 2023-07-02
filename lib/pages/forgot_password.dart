@@ -1,3 +1,5 @@
+import 'package:foodsnap/components/my_button.dart';
+import 'package:foodsnap/pages/login_page.dart';
 import 'package:foodsnap/pages/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,26 +23,49 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     super.dispose();
   }
 
+  Future resetPassword() async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: emailController.text.trim());
+
+      /// Showing Message That user enters email correctly and reset password will be sent
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Password reset link sent! Check your Email"),
+      ));
+
+      /// After 2 seconds we automatically pop forgot screen
+      Future.delayed(const Duration(seconds: 2), () => Navigator.pop(context));
+
+      ///
+    } on FirebaseAuthException catch (e) {
+      // ignore: avoid_print
+      print(e);
+
+      /// Showing Error with SnackBar if the user enter the wrong Email or Enter nothing
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message.toString())));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Center(
             child: Column(children: [
+          const SizedBox(height: 150),
           const Text(
-            'Forgot Passport',
+            'Forgot Passwrord',
             style: TextStyle(
               color: Color(0xff2DB040),
               fontSize: 24,
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 30),
           SizedBox(
             width: 325,
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
+            child: Container(
               color: Colors.white70,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -51,18 +76,27 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       children: [
                         RichText(
                           text: const TextSpan(
-                            text: 'Please mention your email address',
+                            text:
+                                'Enter your Email and we will send you a Password Reset Link',
                             style: TextStyle(
-                              color: Color(0xff888181),
-                              fontSize: 24,
+                              color: Color.fromARGB(255, 28, 56, 36),
+                              fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
+                        const SizedBox(height: 30),
                         TextFormField(
                           controller: emailController,
                           decoration: const InputDecoration(
-                            icon: Icon(Icons.email_outlined),
+                            icon: Icon(
+                              Icons.email_outlined,
+                              color: Color.fromARGB(255, 147, 219, 167),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 147, 219, 167)),
+                            ),
                             hintText: 'Email address',
                           ),
                           validator: (value) {
@@ -80,19 +114,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             return null;
                           },
                         ),
-                        const SizedBox(),
-                        OutlinedButton(
-                            onPressed: () async {
-                              await FirebaseAuth.instance
-                                  .sendPasswordResetEmail(
-                                      email: emailController.text.trim());
-                              utils.showSnackBar('email sent');
-
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.pushNamed(context, 'login');
-                              }
-                            },
-                            child: const Text('Reset Password'))
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        TextButton(
+                            onPressed: resetPassword,
+                            child: const MyButton(
+                              text: "RESET",
+                            ))
                       ],
                     )),
               ),

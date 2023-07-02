@@ -1,23 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/forgot_password.dart';
-import 'package:foodsnap/pages/signup_page.dart';
 import 'package:foodsnap/pages/utils.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback showSignUpScreen;
+
+  const LoginPage({super.key, required this.showSignUpScreen});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
+  // final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   // text editing controllers
@@ -26,6 +28,19 @@ class _LoginPageState extends State<LoginPage> {
 
   final bool _isLoading = false;
 
+  var fSnackBar = const SnackBar(
+    content: Text('The Email & Password fields Must Fill!'),
+  );
+
+  /// Email Fill & Password Empty
+  var sSnackBar = const SnackBar(
+    content: Text('Password field Must Fill!'),
+  );
+
+  /// Email Empty & Password Fill
+  var tSnackBar = const SnackBar(
+    content: Text('Email field Must Fill!'),
+  );
   Utils utils = Utils();
 
   @override
@@ -48,13 +63,60 @@ class _LoginPageState extends State<LoginPage> {
     return await _auth.signInWithCredential(credential);
   }
 
+  Future signIn() async {
+    try {
+      /// In the below, with if statement we have some simple validate
+      if (emailController.text.isNotEmpty &
+          passwordController.text.isNotEmpty) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+      } else if (emailController.text.isNotEmpty &
+          passwordController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(sSnackBar);
+      } else if (emailController.text.isEmpty &
+          passwordController.text.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(tSnackBar);
+      } else if (emailController.text.isEmpty &
+          passwordController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(fSnackBar);
+      }
+    } catch (e) {
+      /// Showing Error with AlertDialog if the user enter the wrong Email and Password
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error Happened'),
+            content: const SingleChildScrollView(
+              child: Text(
+                  "The Email and Password that you Entered is Not valid ,Try Enter a valid Email and Password."),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Got it'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  emailController.clear();
+                  passwordController.clear();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Form(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        key: _formKey,
+        //   autovalidateMode: AutovalidateMode.onUserInteraction,
+        //   key: _formKey,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -89,33 +151,12 @@ class _LoginPageState extends State<LoginPage> {
                 controller: emailController,
                 hintText: 'Email',
                 obscureText: false,
-                validator: (value) {
-                  // Check if this field is empty
-                  if (value == null || value.isEmpty) {
-                    return 'This field is required';
-                  }
-
-                  // using regular expression
-                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                    return "Please enter a valid email address";
-                  }
-
-                  // the email is valid
-                  return null;
-                },
               ),
 
               const SizedBox(height: 10),
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
-                validator: (value) {
-                  if (value != null && value.length < 7) {
-                    return 'Enter minimum 7 characters';
-                  } else {
-                    return null;
-                  }
-                },
                 obscureText: true,
               ),
               // password textfield
@@ -133,14 +174,11 @@ class _LoginPageState extends State<LoginPage> {
                         'Forgot Password?',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
-                      onTap: () {
-                        // Write Tap Code Here.
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ForgotPassword(),
-                            ));
-                      },
+                      onTap: () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (context) => const ForgotPassword(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -150,22 +188,7 @@ class _LoginPageState extends State<LoginPage> {
 
               // sign in button
               TextButton(
-                onPressed: () async {
-                  try {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: emailController.text.trim(),
-                        password: passwordController.text.trim());
-                  } on FirebaseAuthException catch (e) {
-                    print(e);
-                    // Utils.showSnackBar(e.message);
-                    utils.showSnackBar('Try with new email address');
-                  }
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.pushNamed(context, 'home');
-                  } else {
-                    print('Error');
-                  }
-                },
+                onPressed: signIn,
                 child: const MyButton(
                   text: "Log In",
                 ),
@@ -217,8 +240,9 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Not a member? "),
+                  const Text("Don't have an account?"),
                   GestureDetector(
+                    onTap: widget.showSignUpScreen,
                     child: const Text(
                       "Sign UP",
                       style: TextStyle(
@@ -226,14 +250,6 @@ class _LoginPageState extends State<LoginPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    onTap: () {
-                      // Write Tap Code Here.
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpPage(),
-                          ));
-                    },
                   )
                 ],
               ),

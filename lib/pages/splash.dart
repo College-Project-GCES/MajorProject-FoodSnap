@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodsnap/pages/welcome.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -9,17 +9,24 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
+  final _storage = const FlutterSecureStorage();
+
   @override
   void initState() {
     super.initState();
-    _navigatetohome();
+    _checkUserAuth().then((value) {
+      if (value != null) {
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (route) => false);
+      } else {
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/welcome', (route) => false);
+      }
+    });
   }
 
-  _navigatetohome() async {
-    await Future.delayed(const Duration(milliseconds: 1500), () {});
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: ((context) => const WelcomePage())));
+  Future _checkUserAuth() async {
+    return await _storage.read(key: "CABAVENUE_USERDATA_PASSENGER");
   }
 
   @override

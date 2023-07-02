@@ -1,10 +1,89 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/pages/camera_page.dart';
 import 'package:foodsnap/pages/profile_page.dart';
 import 'package:foodsnap/widgets/card.dart';
 import 'package:foodsnap/widgets/tile.dart';
-import '../widgets/bargraph.dart';
-import '../widgets/bottom_navigation.dart';
+import 'package:foodsnap/widgets/bargraph.dart';
+import 'package:foodsnap/widgets/bottom_navigation.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser!;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.asset(
+              'assets/images/FoodSnapLogo.png',
+              height: 50,
+              width: 50,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'Welcome, $user.username!',
+              style: const TextStyle(fontSize: 24),
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(
+            child: TileCard(totalCalories: 500),
+          ),
+          const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: CustomBarGraph(),
+          ),
+          const SizedBox(height: 16.0),
+          Padding(
+            padding: const EdgeInsets.all(0),
+            child: SizedBox(
+              height: 200,
+              width: 60,
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemBuilder: (BuildContext context, int index) {
+                  return const CustomCard(
+                    image: 'assets/images/burger.jpg',
+                    text: 'Burger',
+                    totalCalorie: 200,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavBarWidget(
+        currentIndex: 0,
+        onTap: (int index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CameraPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfilePage()),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
 
 // import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -91,117 +170,4 @@ import '../widgets/bottom_navigation.dart';
 //   final int value;
 
 //   NutritionData(this.nutrient, this.value);
-// }
-
-class HomePage extends StatelessWidget {
-  final String username;
-
-  const HomePage({super.key, required this.username});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-        Image.asset(
-          "assets/images/FoodSnapLogo.png",
-          height: 50,
-          width: 50,
-        ),
-        Text(
-          'Welcome, $username!',
-          style: const TextStyle(fontSize: 24),
-        ),
-      ])),
-      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Center(
-          child: TileCard(totalCalories: 500),
-        ),
-        const SizedBox(height: 20),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: CustomBarGraph(),
-        ),
-        const SizedBox(height: 16.0),
-        Padding(
-          padding: const EdgeInsets.all(0),
-          child: SizedBox(
-            height: 200,
-            width: 60,
-            child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemBuilder: (BuildContext context, int index) {
-                const CustomCard(
-                  image: 'assets/images/burger.jpg',
-                  text: 'Burger',
-                  totalCalorie: 200,
-                );
-                const CustomCard(
-                  image: 'assets/images/burger.jpg',
-                  text: 'Burger',
-                  totalCalorie: 200,
-                );
-                const CustomCard(
-                  image: 'assets/images/burger.jpg',
-                  text: 'Burger',
-                  totalCalorie: 200,
-                );
-                const CustomCard(
-                  image: 'assets/images/burger.jpg',
-                  text: 'Burger',
-                  totalCalorie: 200,
-                );
-                return null;
-              },
-            ),
-          ),
-        ),
-      ]),
-      bottomNavigationBar: BottomNavBarWidget(
-        currentIndex: 0,
-        onTap: (int index) {
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const CameraPage()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-// class Bar extends StatelessWidget {
-//   final String title;
-//   final double value;
-
-//   const Bar({super.key, required this.title, required this.value});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Text(title),
-//         const SizedBox(height: 10),
-//         Container(
-//           height: 200,
-//           width: 30,
-//           color: const Color(0xff2DB040),
-//           child: FractionallySizedBox(
-//             alignment: Alignment.topCenter,
-//             heightFactor: value / 100,
-//             child: Container(
-//               color: Colors.white,
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
 // }

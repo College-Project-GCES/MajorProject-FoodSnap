@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/pages/home_page.dart';
 import 'package:foodsnap/pages/signup_page.dart';
 
@@ -36,9 +37,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const HomePage(
-                            username: 'Hari',
-                          ),
+                          builder: (context) => const HomePage(),
                         ));
                   },
                   child: const SquareTile(
@@ -52,7 +51,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SignUpPage(),
+                          builder: (context) => const MainScreen(),
                         ));
                   },
                   child: const SquareTile(
@@ -86,7 +85,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
+                              builder: (context) => const MainScreen(),
                             ));
                       },
                     )
