@@ -20,6 +20,11 @@ class _VerifiedUserState extends State<VerifiedUser> {
             ),
             const Text(
               'Congratulations!! You have been our verified user',
+              style: TextStyle(
+                color: Color(0xff2DB040),
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             const SizedBox(
               width: 10,

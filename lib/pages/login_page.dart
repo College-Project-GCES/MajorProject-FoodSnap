@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   Utils utils = Utils();
 
@@ -48,85 +48,13 @@ class _LoginPageState extends State<LoginPage> {
     return await _auth.signInWithCredential(credential);
   }
 
-  Future<void> _signInWithEmailAndPassword() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-    } catch (e) {
-      // Handle login errors
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to login. Please check your credentials.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _signUpWithEmailAndPassword() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-    } catch (e) {
-      // Handle signup errors
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to sign up. Please try again.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: Form(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        key: _formKey,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -222,7 +150,22 @@ class _LoginPageState extends State<LoginPage> {
 
               // sign in button
               TextButton(
-                onPressed: _isLoading ? null : _signInWithEmailAndPassword,
+                onPressed: () async {
+                  try {
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: emailController.text.trim(),
+                        password: passwordController.text.trim());
+                  } on FirebaseAuthException catch (e) {
+                    print(e);
+                    // Utils.showSnackBar(e.message);
+                    utils.showSnackBar('Try with new email address');
+                  }
+                  if (_formKey.currentState!.validate()) {
+                    Navigator.pushNamed(context, 'home');
+                  } else {
+                    print('Error');
+                  }
+                },
                 child: const MyButton(
                   text: "Log In",
                 ),
@@ -264,7 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _isLoading ? null : _signInWithGoogle,
                 child: const SquareTile(
                   imagePath: 'assets/images/google.png',
-                  text: "Log In",
+                  text: "Log In with Google",
                 ),
               ),
 
@@ -275,12 +218,23 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Not a member? "),
-                  TextButton(
-                    onPressed: _isLoading ? null : _signUpWithEmailAndPassword,
-                    child: const MyButton(
-                      text: 'Sign Up',
+                  GestureDetector(
+                    child: const Text(
+                      "Sign UP",
+                      style: TextStyle(
+                        color: Color(0xff2DB040),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    onTap: () {
+                      // Write Tap Code Here.
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ));
+                    },
+                  )
                 ],
               ),
             ],

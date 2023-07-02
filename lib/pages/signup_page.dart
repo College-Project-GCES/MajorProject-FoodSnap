@@ -5,6 +5,8 @@ import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
 import 'package:foodsnap/pages/login_page.dart';
+import 'package:foodsnap/pages/utils.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -21,6 +23,12 @@ class _SignUpPageState extends State<SignUpPage> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  bool _isLoading = false;
+
+  Utils utils = Utils();
+  // text editing controllers
   @override
   void dispose() {
     emailController.dispose();
@@ -29,16 +37,30 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
+  Future<UserCredential> _signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return await _auth.signInWithCredential(credential);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          key: _formKey,
+          child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Image.asset(
                 "assets/images/FoodSnapLogo.png",
                 height: 80,
@@ -193,15 +215,12 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 15),
 
               // google sign in buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  // google button
-                  SquareTile(
-                    imagePath: 'assets/images/google.png',
-                    text: 'SignUp with Google',
-                  ),
-                ],
+              TextButton(
+                onPressed: _isLoading ? null : _signInWithGoogle,
+                child: const SquareTile(
+                  imagePath: 'assets/images/google.png',
+                  text: "Log In with Google",
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -230,11 +249,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   )
                 ],
               ),
-            ],
+            ]),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

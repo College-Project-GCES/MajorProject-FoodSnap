@@ -1,7 +1,6 @@
+import 'package:foodsnap/pages/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:foodsnap/pages/welcome.dart';
-import 'login_page.dart';
 
 class LogoutScreen extends StatefulWidget {
   const LogoutScreen({super.key});
@@ -15,16 +14,19 @@ class _LogoutScreenState extends State<LogoutScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
       body: Center(
         child: Card(
           child: Column(children: [
             const SizedBox(
               height: 180,
             ),
-            const Text('Are you sure to exit?'),
+            const Text(
+              "Are you sure to exit?",
+              style: TextStyle(
+                color: Color(0xff2DB040),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             Row(
               children: [
                 const SizedBox(
@@ -47,7 +49,7 @@ class _LogoutScreenState extends State<LogoutScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  const WelcomePage()),
+                                  const LoginPage()),
                           ModalRoute.withName('/'));
                     },
                     child: const Text(

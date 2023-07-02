@@ -28,11 +28,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         body: Center(
             child: Column(children: [
           const Text(
-            '\n\n\nForgot Password\n\n',
+            'Forgot Passport',
             style: TextStyle(
-              color: Colors.orangeAccent,
-              fontSize: 28,
-              letterSpacing: 2,
+              color: Color(0xff2DB040),
+              fontSize: 24,
+              fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(
@@ -50,10 +50,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     child: Column(
                       children: [
                         RichText(
-                            text: const TextSpan(
-                          style: TextStyle(color: Colors.blue),
-                          text: 'Please mention your email address',
-                        )),
+                          text: const TextSpan(
+                            text: 'Please mention your email address',
+                            style: TextStyle(
+                              color: Color(0xff888181),
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                         TextFormField(
                           controller: emailController,
                           decoration: const InputDecoration(
