@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/pages/home_page.dart';
 import 'package:foodsnap/pages/signup_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../components/square_tile.dart';
 import 'login_page.dart';
@@ -14,6 +17,23 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final bool _isLoading = false;
+
+  Future<UserCredential> _signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return await _auth.signInWithCredential(credential);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,17 +52,10 @@ class _WelcomePageState extends State<WelcomePage> {
               children: [
                 // google button
                 TextButton(
-                  onPressed: () {
-                    // Write Tap Code Here.
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomePage(),
-                        ));
-                  },
+                  onPressed: _isLoading ? null : _signInWithGoogle,
                   child: const SquareTile(
                     imagePath: 'assets/images/google.png',
-                    text: 'SignUp with Google',
+                    text: "Log In with Google",
                   ),
                 ),
                 const SizedBox(height: 10),
