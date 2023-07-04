@@ -4,155 +4,101 @@ import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
 import 'package:foodsnap/components/my_textfield.dart';
 import 'package:foodsnap/components/square_tile.dart';
+import 'package:foodsnap/firebase_constants.dart';
 import 'package:foodsnap/pages/login_page.dart';
 import 'package:foodsnap/pages/utils.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:foodsnap/auth/verify_email_page.dart';
 
 class SignUpPage extends StatefulWidget {
   final VoidCallback showLoginScreen;
 
-  const SignUpPage({super.key, required this.showLoginScreen});
+  const SignUpPage({Key? key, required this.showLoginScreen}) : super(key: key);
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  // text editing controllers
-  // final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
-  final usernameController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _isLoading = false;
-  // text editing controllers
+
   @override
   void dispose() {
     emailController.dispose();
+    nameController.dispose();
     passwordController.dispose();
-
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
-  /// Password =! ConfirmPassword
-  var aSnackBar = const SnackBar(
-    content: Text('The password in not match with confirm password'),
-  );
-
-  /// Password & ConfirmPassword is Empty
-  var bSnackBar = const SnackBar(
-    content: Text('The Password & Confirm Password fields must fill!'),
-  );
-
-  /// Confirm Password is Empty
-  var cSnackBar = const SnackBar(
-    content: Text('The Confirm Password field must fill!'),
-  );
-
-  /// Password is Empty
-  var dSnackBar = const SnackBar(
-    content: Text('The Password field must fill!'),
-  );
-
-  /// Email & Confirm Password is Empty
-  var eSnackBar = const SnackBar(
-    content: Text('The Email & Confirm Password fields must fill!'),
-  );
-
-  /// Email is Empty
-  var fSnackBar = const SnackBar(
-    content: Text('The Email field must fill!'),
-  );
-
-  /// Email & password is Empty
-  var gSnackBar = const SnackBar(
-    content: Text('The Email & Password fields must fill!'),
-  );
-
-  /// All Fields Empty
-  var xSnackBar = const SnackBar(
-    content: Text('You must fill all fields'),
-  );
-
-  /// SIGNING UP METHOD TO FIREBASE
-  Future signUp() async {
-    if (emailController.text.isNotEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isNotEmpty &
-        confirmPasswordController.text.isNotEmpty) {
-      if (passwordConfirmed()) {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(aSnackBar);
-      }
-
-      /// In the below, with if statement we have some simple validate
-    } else if (emailController.text.isNotEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isEmpty &
-        confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(bSnackBar);
-    }
-
-    ///
-    else if (emailController.text.isNotEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isNotEmpty &
-        confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(cSnackBar);
-    }
-
-    ///
-    else if (emailController.text.isNotEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isEmpty &
-        confirmPasswordController.text.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(dSnackBar);
-    }
-
-    ///
-    else if (emailController.text.isEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isNotEmpty &
-        confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(eSnackBar);
-    }
-
-    ///
-    else if (emailController.text.isEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isNotEmpty &
-        confirmPasswordController.text.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(fSnackBar);
-    }
-
-    ///
-    else if (emailController.text.isEmpty &
-        usernameController.text.isNotEmpty &
-        passwordController.text.isEmpty &
-        confirmPasswordController.text.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(gSnackBar);
-    }
-
-    ///
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(xSnackBar);
-    }
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 245, 61, 61),
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
   }
 
-  /// CHECK IF PASSWORD CONFIREMD OR NOT
-  bool passwordConfirmed() {
-    if (passwordController.text.trim() ==
-        confirmPasswordController.text.trim()) {
-      return true;
-    } else {
-      return false;
+  static Future<User?> signUp({
+    required String name,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required BuildContext context,
+  }) async {
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('The password does not match the confirm password.')),
+      );
+      return null;
+    }
+
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user != null) {
+        // Update user's display name
+        User user = userCredential.user!;
+        await user.updateDisplayName(name);
+
+        return user;
+      }
+
+      return null;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('The password provided is too weak.')),
+        );
+      } else if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('The account already exists for that email.')),
+        );
+      }
+      return null;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
     }
   }
 
@@ -172,14 +118,13 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.white,
-        body: Form(
-          // autovalidateMode: AutovalidateMode.onUserInteraction,
-          // key: _formKey,
-          child: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      body: Form(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               Image.asset(
                 "assets/images/FoodSnapLogo.png",
                 height: 80,
@@ -194,59 +139,68 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               const SizedBox(height: 15),
-
               const Text(
-                'Please enter your credentials ',
+                'Please enter your credentials',
                 style: TextStyle(
                   color: Color(0xff888181),
                   fontSize: 16,
                 ),
               ),
-
               const SizedBox(height: 15),
               MyTextField(
                 controller: emailController,
                 hintText: 'Email address',
                 obscureText: false,
               ),
-              // username textfield
               const SizedBox(height: 10),
-
               MyTextField(
-                controller: usernameController,
+                controller: nameController,
                 hintText: 'Full Name',
                 obscureText: false,
               ),
-
               const SizedBox(height: 10),
-
-              // password textfield
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
                 obscureText: true,
               ),
               const SizedBox(height: 10),
-
               MyTextField(
                 controller: confirmPasswordController,
                 hintText: 'Confirm Password',
                 obscureText: true,
               ),
-
               const SizedBox(height: 10),
-
-              // sign in button
               TextButton(
-                onPressed: signUp,
-                child: const MyButton(
-                  text: "Sign Up",
-                ),
-              ),
+                  onPressed: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
 
+                    User? signedUpUser = await signUp(
+                      email: emailController.text,
+                      password: passwordController.text,
+                      name: nameController.text,
+                      confirmPassword: confirmPasswordController.text,
+                      context: context,
+                    );
+
+                    if (signedUpUser != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => const VerifyEmailPage()),
+                      );
+                    }
+
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  child: const MyButton(
+                    text: "Sign Up",
+                  )),
               const SizedBox(height: 15),
-
-              // or continue with
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
@@ -273,10 +227,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 15),
-
-              // google sign in buttons
               TextButton(
                 onPressed: _isLoading ? null : _signInWithGoogle,
                 child: const SquareTile(
@@ -284,10 +235,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   text: "Log In with Google",
                 ),
               ),
-
               const SizedBox(height: 15),
-
-              // Already a  member? Login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -304,31 +252,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   )
                 ],
               ),
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
-}
-
-class User {
-  final String id;
-  final String username;
-  final String userEmailAddress;
-
-  User({
-    this.id = '',
-    required this.username,
-    required this.userEmailAddress,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': username,
-        'email': userEmailAddress,
-      };
-
-  static User fromJson(Map<String, dynamic> Function() json) => User(
-        username: 'name',
-        userEmailAddress: 'email',
-      );
 }

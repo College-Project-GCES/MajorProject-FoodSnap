@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 class CustomCard extends StatelessWidget {
   final String image;
   final String text;
-  final int totalCalorie;
+  final String totalCalorie;
 
   const CustomCard({
-    super.key,
     required this.image,
     required this.text,
     required this.totalCalorie,
@@ -23,19 +22,13 @@ class CustomCard extends StatelessWidget {
             height: 200,
             fit: BoxFit.cover,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 18),
-            ),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 18),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              totalCalorie as String,
-              style: const TextStyle(fontSize: 18),
-            ),
+          Text(
+            totalCalorie,
+            style: const TextStyle(fontSize: 18),
           ),
         ],
       ),

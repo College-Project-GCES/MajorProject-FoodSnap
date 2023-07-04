@@ -5,12 +5,14 @@ class UserModel {
   bool isEmailVerified;
   String email;
   String id;
+  String imageUrl;
 
   UserModel({
     required this.name,
     required this.isEmailVerified,
     required this.email,
     required this.id,
+    required this.imageUrl,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> jsonData) {
@@ -19,6 +21,7 @@ class UserModel {
       isEmailVerified: jsonData['isEmailVerified'],
       email: jsonData['email'],
       id: jsonData['id'],
+      imageUrl: jsonData['imageUrl'],
     );
   }
 
@@ -27,6 +30,7 @@ class UserModel {
         'email': model.email,
         'id': model.id,
         'name': model.name,
+        'imageUrl': model.imageUrl,
       };
 
   static String serialize(UserModel model) =>

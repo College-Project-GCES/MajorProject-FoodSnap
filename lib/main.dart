@@ -1,4 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:foodsnap/auth/main_page.dart';
@@ -27,9 +28,9 @@ class MyApp extends StatelessWidget {
         duration: 2000,
         splashTransition: SplashTransition.fadeTransition,
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-
-        // ignore: prefer_const_constructors
-        nextScreen: WelcomePage(),
+        nextScreen: FirebaseAuth.instance.currentUser != null
+            ? const HomePage() // User is already logged in, redirect to HomePage
+            : const WelcomePage(), // User not logged in, show WelcomePage
       ),
     );
   }

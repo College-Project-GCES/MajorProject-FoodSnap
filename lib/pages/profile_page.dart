@@ -18,24 +18,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   File? _image;
-  // late User? _currentUser;
-
-  @override
-  void initState() {
-    super.initState();
-    // _currentUser = _auth.currentUser;
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: source);
-
-    if (pickedImage != null) {
-      setState(() {
-        _image = File(pickedImage.path);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 CircleAvatar(
                   radius: 80,
-                  backgroundColor: const Color.fromARGB(255, 94, 195, 133),
+                  backgroundColor: Color.fromARGB(255, 255, 255, 255),
                   backgroundImage: _image != null ? FileImage(_image!) : null,
                   child: _image == null
                       ? const CircleAvatar(
@@ -58,20 +40,20 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Icon(
                             Icons.person,
                             color: Color.fromARGB(255, 94, 195, 133),
-                            size: 80,
+                            size: 120,
                           ),
                         )
                       : null,
                 ),
                 Positioned(
-                  right: -20,
-                  bottom: -20,
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: const Color.fromARGB(255, 94, 195, 133),
-                    child: IconButton(
-                      onPressed: () => _pickImage(ImageSource.camera),
-                      icon: const Icon(
+                  right: -10,
+                  bottom: -10,
+                  child: InkResponse(
+                    onTap: () => _showImagePickerDialog(),
+                    child: const CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                      child: Icon(
                         Icons.camera_alt,
                         color: Color.fromARGB(255, 12, 48, 26),
                       ),
@@ -83,7 +65,6 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 16),
             const Text(
               'Pratigya',
-              // _currentUser?.displayName ?? '',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -125,6 +106,44 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         },
       ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: source);
+
+    if (pickedImage != null) {
+      setState(() {
+        _image = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<void> _showImagePickerDialog() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose Image Source'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+              child: const Text('Camera'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.gallery);
+              },
+              child: const Text('Gallery'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
