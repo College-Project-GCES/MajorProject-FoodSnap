@@ -2,36 +2,28 @@ import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
   final String image;
-  final String text;
-  final String totalCalorie;
+  final String name;
 
   const CustomCard({
+    Key? key,
     required this.image,
-    required this.text,
-    required this.totalCalorie,
-  });
+    required this.name,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        children: [
-          Image.asset(
-            image,
-            width: 200,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 18),
-          ),
-          Text(
-            totalCalorie,
-            style: const TextStyle(fontSize: 18),
-          ),
-        ],
-      ),
+      color: const Color.fromARGB(255, 145, 220, 196),
+      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+        Image.asset(
+          image,
+          height: 110,
+          width: 150,
+        ),
+        Padding(
+            padding: const EdgeInsets.only(bottom: 40, top: 20),
+            child: Text(name)),
+      ]),
     );
   }
 }

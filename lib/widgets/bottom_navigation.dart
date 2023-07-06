@@ -22,8 +22,8 @@ class BottomNavBarWidget extends StatelessWidget {
           label: 'Camera',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: Icon(Icons.logout),
+          label: 'Logout',
         ),
       ],
       currentIndex: currentIndex,

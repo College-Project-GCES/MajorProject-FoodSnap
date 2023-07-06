@@ -1,62 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class CustomBarGraph extends StatefulWidget {
-  const CustomBarGraph({super.key});
+class CustomBarGraph extends StatelessWidget {
+  final List<Nutrient> nutrients;
+  final List<Color> barColors;
 
-  @override
-  State<CustomBarGraph> createState() => _CustomBarGraphState();
-}
-
-class _CustomBarGraphState extends State<CustomBarGraph> {
-  final List<charts.Series<Nutrient, String>> seriesList = [
-    charts.Series<Nutrient, String>(
-      id: 'Nutrients',
-      data: [
-        Nutrient('Carbohydrates', 30),
-        Nutrient('Fat', 20),
-        Nutrient('Protein', 50),
-      ],
-      domainFn: (Nutrient nutrient, _) => nutrient.name,
-      measureFn: (Nutrient nutrient, _) => nutrient.value,
-      labelAccessorFn: (Nutrient nutrient, _) =>
-          '${nutrient.name}: ${nutrient.value}%',
-    ),
-  ];
+  const CustomBarGraph({
+    required this.nutrients,
+    required this.barColors,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            height: 2.0,
-            color: Colors.grey,
-          ),
+    final seriesList = _createSeriesList(nutrients, barColors);
+
+    return Center(
+      child: SizedBox(
+        height: 300,
+        width: 350,
+        child: charts.BarChart(
+          seriesList,
+          domainAxis: const charts.OrdinalAxisSpec(
+              renderSpec: charts.SmallTickRendererSpec(
+            labelRotation: 0,
+            labelStyle: charts.TextStyleSpec(
+                //2 style of label
+                fontSize: 16),
+          )),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            width: 2.0,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(
-          width: 300, // Set the desired width for the bar graph
-          height: 200,
-          child: charts.BarChart(
-            seriesList,
-            animate: true,
-            vertical: true,
-            primaryMeasureAxis: const charts.NumericAxisSpec(
-              tickProviderSpec:
-                  charts.BasicNumericTickProviderSpec(zeroBound: false),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  List<charts.Series<Nutrient, String>> _createSeriesList(
+    List<Nutrient> nutrients,
+    List<Color> barColors,
+  ) {
+    return [
+      charts.Series<Nutrient, String>(
+        id: 'Nutrients',
+        data: nutrients,
+        domainFn: (Nutrient nutrient, _) => nutrient.name,
+        measureFn: (Nutrient nutrient, _) => nutrient.value,
+        colorFn: (Nutrient nutrient, _) {
+          final index = nutrients.indexOf(nutrient) % barColors.length;
+          return charts.ColorUtil.fromDartColor(barColors[index]);
+        },
+        labelAccessorFn: (Nutrient nutrient, _) =>
+            '${nutrient.name}: ${nutrient.value}%',
+      ),
+    ];
   }
 }
 

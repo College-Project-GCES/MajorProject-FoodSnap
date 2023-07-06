@@ -1,25 +1,36 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class NutritionPage extends StatefulWidget {
-  const NutritionPage({super.key});
+class NutritionPage extends StatelessWidget {
+  final File? image;
+  final String predictedFood;
 
-  @override
-  State<NutritionPage> createState() => _NutritionPageState();
-}
+  const NutritionPage(
+      {required this.image, required this.predictedFood, Key? key})
+      : super(key: key);
 
-class _NutritionPageState extends State<NutritionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Nutrition Page',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
           onPressed: () {
-            // Handle back button press
+            Navigator.pop(context);
           },
         ),
-        title: const Text('Nutrition Page'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -27,31 +38,17 @@ class _NutritionPageState extends State<NutritionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: const [
-                  Icon(Icons.arrow_back),
-                  SizedBox(width: 8.0),
-                  Text('Page Title'),
-                ],
-              ),
+              if (image != null)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Image.file(image!),
+                ),
               const SizedBox(height: 16.0),
-              Row(
-                children: const [
-                  Text('Text 1: '),
-                  Text('Numeric Value 1'),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              charts.PieChart(
-                _createSampleData(),
-                animate: true,
-                defaultRenderer: charts.ArcRendererConfig(
-                  arcWidth: 60,
-                  arcRendererDecorators: [
-                    charts.ArcLabelDecorator(
-                      labelPosition: charts.ArcLabelPosition.inside,
-                    ),
-                  ],
+              Text(
+                'Predicted Food: $predictedFood',
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -86,13 +83,6 @@ class _NutritionPageState extends State<NutritionPage> {
                       ),
                     ],
                   ),
-                  TableRow(
-                    children: [
-                      TableCell(
-                        child: Text('Serving per gm'),
-                      ),
-                    ],
-                  ),
                 ],
               ),
               const SizedBox(height: 16.0),
@@ -107,51 +97,13 @@ class _NutritionPageState extends State<NutritionPage> {
                 backgroundColor: Colors.red,
               ),
               const SizedBox(height: 16.0),
-              const Text('Explanation'),
+              const Text('Explanation:'),
               const SizedBox(height: 16.0),
-              const Text('Reason to Avoid Food'),
+              const Text('Suggestion:'),
             ],
           ),
         ),
       ),
     );
   }
-
-  List<charts.Series<ChartData, String>> _createSampleData() {
-    final data = [
-      ChartData('Carbohydrate', 40),
-      ChartData('Fat', 30),
-      ChartData('Protein', 30),
-    ];
-
-    return [
-      charts.Series<ChartData, String>(
-        id: 'Nutrients',
-        domainFn: (ChartData nutrient, _) => nutrient.nutrientName,
-        measureFn: (ChartData nutrient, _) => nutrient.value,
-        labelAccessorFn: (ChartData nutrient, _) =>
-            '${nutrient.nutrientName}: ${nutrient.value}%',
-        data: data,
-        colorFn: (_, index) {
-          switch (index) {
-            case 0:
-              return charts.MaterialPalette.blue.shadeDefault;
-            case 1:
-              return charts.MaterialPalette.red.shadeDefault;
-            case 2:
-              return charts.MaterialPalette.green.shadeDefault;
-            default:
-              return charts.MaterialPalette.gray.shadeDefault;
-          }
-        },
-      ),
-    ];
-  }
-}
-
-class ChartData {
-  final String nutrientName;
-  final int value;
-
-  ChartData(this.nutrientName, this.value);
 }

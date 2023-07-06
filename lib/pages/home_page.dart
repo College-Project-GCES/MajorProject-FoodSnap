@@ -1,20 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/pages/camera_page.dart';
 import 'package:foodsnap/pages/profile_page.dart';
 import 'package:foodsnap/widgets/bargraph.dart';
 import 'package:foodsnap/widgets/card.dart';
-import 'package:foodsnap/widgets/card.dart';
 import 'package:foodsnap/widgets/bottom_navigation.dart';
 import 'package:foodsnap/widgets/tile.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  List<Map<String, String>> cardData = [
+    {
+      'image': 'assets/images/burger.jpg',
+      'name': 'Burger',
+    },
+    {
+      'image': 'assets/images/pizza.webp',
+      'name': 'Pizza',
+    },
+    {
+      'image': 'assets/images/momo.jpg',
+      'name': 'MOMO',
+    },
+    {
+      'image': 'assets/images/panipuri.jpg',
+      'name': 'Panipuri',
+    },
+    {
+      'image': 'assets/images/panner.webp',
+      'name': 'Panner',
+    },
+    // Add more data as needed
+  ];
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -27,7 +54,7 @@ class HomePage extends StatelessWidget {
               width: 50,
             ),
             const Text(
-              'Welcome, User!',
+              'Welcome, ',
               style: TextStyle(
                 color: Color.fromARGB(255, 13, 46, 31),
                 fontSize: 16,
@@ -36,34 +63,55 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          const Center(
-            child: TileCard(totalCalories: 500),
-          ),
-          const SizedBox(height: 20),
-          CustomBarGraph(),
-          const SizedBox(height: 90.0),
-          Padding(
-            padding: const EdgeInsets.all(0),
-            child: SizedBox(
-              height: 200,
-              width: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemBuilder: (BuildContext context, int index) {
-                  return const CustomCard(
-                    image: 'assets/images/burger.jpg',
-                    text: 'Burger',
-                    totalCalorie: '200',
-                  );
-                },
+      body: SingleChildScrollView(
+        // Wrap the Column with SingleChildScrollView
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 15),
+            const Center(
+              child: TileCard(totalCalories: 500),
+            ),
+            CustomBarGraph(
+              nutrients: [
+                Nutrient('Carbohydrates', 30),
+                Nutrient('Fat', 20),
+                Nutrient('Protein', 50),
+              ],
+              barColors: const [
+                Color.fromARGB(255, 164, 203, 236),
+                Color.fromARGB(255, 247, 193, 190),
+                Color.fromARGB(255, 170, 219, 171),
+              ],
+            ),
+            const SizedBox(height: 20.0),
+            const Padding(
+              padding: EdgeInsets.only(left: 30),
+              child: Text(
+                'Predict History',
+                style: TextStyle(fontSize: 22),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 15.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 30),
+              child: SizedBox(
+                height: 170,
+                width: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: cardData.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return CustomCard(
+                      image: cardData[index]['image']!,
+                      name: cardData[index]['name']!,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavBarWidget(
         currentIndex: 0,
@@ -74,9 +122,13 @@ class HomePage extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const CameraPage()),
             );
           } else if (index == 2) {
-            Navigator.push(
+            FirebaseAuth.instance.signOut();
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
+              MaterialPageRoute(
+                builder: (BuildContext context) => const MainScreen(),
+              ),
+              ModalRoute.withName('/'),
             );
           }
         },

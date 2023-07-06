@@ -26,10 +26,10 @@ class UserModel {
   }
 
   static Map<String, dynamic> toMap(UserModel model) => {
+        'name': model.name,
         'isEmailVerified': model.isEmailVerified,
         'email': model.email,
         'id': model.id,
-        'name': model.name,
         'imageUrl': model.imageUrl,
       };
 
