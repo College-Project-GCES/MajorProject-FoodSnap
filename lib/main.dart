@@ -2,12 +2,8 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:foodsnap/auth/main_page.dart';
-import 'pages/login_page.dart';
-import 'pages/signup_page.dart';
 import 'pages/home_page.dart';
 import 'pages/welcome.dart';
-import 'pages/splash.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();

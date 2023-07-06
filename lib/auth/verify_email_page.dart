@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/firebase_constants.dart';
 
 class VerifyEmailPage extends StatefulWidget {
@@ -30,11 +31,17 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     });
 
     if (isEmailVerified) {
-      // TODO: implement your code after email verification
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Email Successfully Verified")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Email Successfully Verified")),
+      );
 
       timer?.cancel();
+
+      // Navigate to the login page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
     }
   }
 

@@ -11,7 +11,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   /// SHOW THE LOGIN PAGE
-  bool showLogInPage = true;
+  bool showLogInPage = false;
 
   /// TOGGLE BETWEEN LOGIN and SIGNUP SCREENS
   void toggleScreen() {

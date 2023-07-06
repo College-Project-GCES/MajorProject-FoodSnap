@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/components/my_button.dart';
@@ -92,14 +91,13 @@ class _LoginPageState extends State<LoginPage> {
             title: const Text('Error Happened'),
             content: const SingleChildScrollView(
               child: Text(
-                  "The Email and Password that you Entered is Not valid ,Try Enter a valid Email and Password."),
+                  "The Email or  Password that you Entered is Not valid ,Try Enter a valid Email and Password."),
             ),
             actions: <Widget>[
               TextButton(
                 child: const Text('Got it'),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  emailController.clear();
                   passwordController.clear();
                 },
               ),
@@ -117,143 +115,145 @@ class _LoginPageState extends State<LoginPage> {
       body: Form(
         //   autovalidateMode: AutovalidateMode.onUserInteraction,
         //   key: _formKey,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                "assets/images/FoodSnapLogo.png",
-                height: 80,
-                width: 80,
-              ),
-              const Text(
-                'Log In',
-                style: TextStyle(
-                  color: Color(0xff2DB040),
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/images/FoodSnapLogo.png",
+                  height: 80,
+                  width: 80,
                 ),
-              ),
-              const SizedBox(height: 15),
-
-              const Text(
-                'Enter your credentials to continue.',
-                style: TextStyle(
-                  color: Color(0xff888181),
-                  fontSize: 16,
+                const Text(
+                  'Log In',
+                  style: TextStyle(
+                    color: Color(0xff2DB040),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 15),
 
-              const SizedBox(height: 25),
+                const Text(
+                  'Enter your credentials to continue.',
+                  style: TextStyle(
+                    color: Color(0xff888181),
+                    fontSize: 16,
+                  ),
+                ),
 
-              // username textfield
-              MyTextField(
-                controller: emailController,
-                hintText: 'Email',
-                obscureText: false,
-              ),
+                const SizedBox(height: 25),
 
-              const SizedBox(height: 10),
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-              ),
-              // password textfield
+                // username textfield
+                MyTextField(
+                  controller: emailController,
+                  hintText: 'Email',
+                  obscureText: false,
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                ),
+                // password textfield
 
-              // forgot password?
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      onTap: () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => const ForgotPassword(),
+                const SizedBox(height: 10),
+
+                // forgot password?
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        onTap: () => Navigator.of(context).push(
+                          CupertinoPageRoute(
+                            builder: (context) => const ForgotPassword(),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // sign in button
-              TextButton(
-                onPressed: signIn,
-                child: const MyButton(
-                  text: "Log In",
+                // sign in button
+                TextButton(
+                  onPressed: signIn,
+                  child: const MyButton(
+                    text: "Log In",
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 15),
-              // or continue with
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
+                const SizedBox(height: 15),
+                // or continue with
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          'Or',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // google sign in buttons
+                TextButton(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                  child: const SquareTile(
+                    imagePath: 'assets/images/google.png',
+                    text: "Log In with Google",
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // not a member? register now
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
+                    const Text("Don't have an account?"),
+                    GestureDetector(
+                      onTap: widget.showSignUpScreen,
+                      child: const Text(
+                        "Sign UP",
+                        style: TextStyle(
+                          color: Color(0xff2DB040),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
+                    )
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // google sign in buttons
-              TextButton(
-                onPressed: _isLoading ? null : _signInWithGoogle,
-                child: const SquareTile(
-                  imagePath: 'assets/images/google.png',
-                  text: "Log In with Google",
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // not a member? register now
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  GestureDetector(
-                    onTap: widget.showSignUpScreen,
-                    child: const Text(
-                      "Sign UP",
-                      style: TextStyle(
-                        color: Color(0xff2DB040),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:foodsnap/auth/main_page.dart';
-import 'package:foodsnap/pages/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LogoutScreen extends StatefulWidget {
   const LogoutScreen({super.key});
@@ -11,6 +11,7 @@ class LogoutScreen extends StatefulWidget {
 }
 
 class _LogoutScreenState extends State<LogoutScreen> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -43,8 +44,9 @@ class _LogoutScreenState extends State<LogoutScreen> {
                   width: 20,
                 ),
                 OutlinedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       FirebaseAuth.instance.signOut();
+                      await _googleSignIn.disconnect();
                       // Navigator.pushAndRemoveUntil(context, 'login');
                       Navigator.pushAndRemoveUntil(
                           context,

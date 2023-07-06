@@ -1,13 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/pages/camera_page.dart';
-import 'package:foodsnap/pages/profile_page.dart';
 import 'package:foodsnap/widgets/bargraph.dart';
 import 'package:foodsnap/widgets/card.dart';
 import 'package:foodsnap/widgets/bottom_navigation.dart';
 import 'package:foodsnap/widgets/tile.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +16,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   List<Map<String, String>> cardData = [
     {
       'image': 'assets/images/burger.jpg',
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavBarWidget(
         currentIndex: 0,
-        onTap: (int index) {
+        onTap: (int index) async {
           if (index == 1) {
             Navigator.push(
               context,
@@ -123,6 +124,7 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (index == 2) {
             FirebaseAuth.instance.signOut();
+            await _googleSignIn.disconnect();
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
