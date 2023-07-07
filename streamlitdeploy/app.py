@@ -53,9 +53,9 @@ st.set_page_config(page_title="Food Vision",
 
 #### SideBar ####
 
-st.sidebar.title("What's Food Vision ?")
+st.sidebar.title("What's Food snap?")
 st.sidebar.write("""
-FoodVision is an end-to-end **CNN Image Classification Model** which identifies the food in your image. 
+
 
 It can identify over 100 different food classes
 
@@ -73,7 +73,6 @@ It is based upom a pre-trained Image Classification Model that comes with Keras 
 
 st.title("Food Vision 🍔📷")
 st.header("Identify what's in your food photos!")
-st.write("To know more about this app, visit [**GitHub**](https://github.com/gauravreddy08/food-vision)")
 file = st.file_uploader(label="Upload an image of food.",
                         type=["jpg", "jpeg", "png"])
 
