@@ -1,32 +1,8 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-import numpy as np
+import streamlit as st
 import tensorflow as tf
-from utils import read_and_resize 
-from fastapi import FastAPI
-from fastapi import Request
 import pandas as pd
 import altair as alt
 from utils import load_and_prep, get_classes
-
-
-
-app = FastAPI()
-
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
 
 @st.cache(suppress_st_warning=True)
 def predicting(image, model):
@@ -48,20 +24,14 @@ def predicting(image, model):
 
 class_names = get_classes()
 
-st.set_page_config(page_title="Food Vision",
-                   page_icon="🍔")
+st.set_page_config(page_title="Food snap",
+                   page_icon="")
 
 #### SideBar ####
 
-st.sidebar.title("What's Food snap?")
+st.sidebar.title("What's Food snap ?")
 st.sidebar.write("""
 
-
-It can identify over 100 different food classes
-
-It is based upom a pre-trained Image Classification Model that comes with Keras and then retrained on the infamous **Food101 Dataset**.
-
-**Accuracy :** **`85%`**
 
 **Model :** **`EfficientNetB1`**
 
@@ -71,8 +41,9 @@ It is based upom a pre-trained Image Classification Model that comes with Keras 
 
 #### Main Body ####
 
-st.title("Food Vision 🍔📷")
+st.title("Food Snap")
 st.header("Identify what's in your food photos!")
+
 file = st.file_uploader(label="Upload an image of food.",
                         type=["jpg", "jpeg", "png"])
 
