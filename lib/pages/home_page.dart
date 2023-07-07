@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  late String name;
   List<Map<String, String>> cardData = [
     {
       'image': 'assets/images/burger.jpg',
