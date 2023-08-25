@@ -1,0 +1,153 @@
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import HTMLResponse
+import tensorflow as tf
+import altair as alt
+from utils import load_and_prep, get_classes
+import pandas as pd
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+import base64
+
+
+app = FastAPI()
+
+# Add TrustedHostMiddleware to allow requests from localhost
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+
+# Load and prepare model
+model = tf.keras.models.load_model("./models/EfficientNetB1.hdf5")
+class_names = get_classes()
+
+def predicting(image, model):
+    image = load_and_prep(image)
+    image = tf.cast(tf.expand_dims(image, axis=0), tf.int16)
+    preds = model.predict(image)
+    pred_class = class_names[tf.argmax(preds[0])]
+    pred_conf = tf.reduce_max(preds[0])
+    top_5_i = sorted((preds.argsort())[0][-5:][::-1])
+    values = preds[0][top_5_i] * 100
+    labels = []
+    for x in range(5):
+        labels.append(class_names[top_5_i[x]])
+    df = pd.DataFrame({
+        "Top 5 Predictions": labels,
+        "F1 Scores": values,
+        'color': ['#EC5953', '#EC5953', '#EC5953', '#EC5953', '#EC5953']
+    })
+    df = df.sort_values('F1 Scores')
+    return pred_class, pred_conf, df
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+    return """
+    <html>
+    <head>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        text-align: center;
+    }
+    h1 {
+        color: #333;
+    }
+    h2 {
+        color: #666;
+    }
+    #upload-form {
+        margin: 2em auto;
+        padding: 2em;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 70%;
+    }
+    #upload-form input[type="file"] {
+        display: block;
+        margin: 0 auto;
+        padding: 1em;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+    #upload-form input[type="submit"] {
+        margin-top: 1em;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 1em 2em;
+        font-size: 18px;
+        cursor: pointer;
+    }
+    </style>
+    </head>
+    <body>
+    <h1>Food Snap</h1>
+    <h2>Identify what's in your food photos!</h2>
+    <div id="upload-form">
+    <form action="/predict" enctype="multipart/form-data" method="post">
+        <input type="file" name="file">
+        <input type="submit" value="Predict">
+    </form>
+    </div>
+    </body>
+    </html>
+    """
+
+@app.post("/predict", response_class=HTMLResponse)
+async def predict(file: UploadFile = File(...)):
+    image = await file.read()
+    pred_class, pred_conf, df = predicting(image, model)
+     
+    # Convert the image data to Base64
+    image_base64 = base64.b64encode(image).decode('utf-8')
+
+    chart = alt.Chart(df).mark_bar().encode(
+        x='F1 Scores',
+        y=alt.X('Top 5 Predictions', sort=None),
+        color=alt.Color("color", scale=None),
+        text='F1 Scores'
+    ).properties(width=600, height=400)
+    
+    chart_html = chart.to_html()
+
+    return HTMLResponse(content=f"""
+    <html>
+    <head>
+    <style>
+    body {{
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        text-align: center;
+    }}
+    h2 {{
+        color: #007bff;
+    }}
+    img {{
+        margin-top: 1em;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }}
+    iframe {{
+        margin-top: 1em;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }}
+    </style>
+    </head>
+    <body>
+    <h2>Prediction: {pred_class}</h2>
+    <p>Confidence: {pred_conf*100:.2f}%</p>
+    <img src="data:image/jpeg;base64,{image_base64}" alt="Uploaded Image" width="400">
+    <div>{chart_html}</div>
+    </body>
+    </html>
+    """)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
