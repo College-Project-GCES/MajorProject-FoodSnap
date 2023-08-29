@@ -60,7 +60,7 @@ def predicting(image, model):
     df = df.sort_values('F1 Scores')
     return pred_class, pred_conf, df
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/api", response_class=HTMLResponse)
 async def home():
     return """
     <html>
@@ -111,7 +111,7 @@ async def home():
     <h1>Food Snap</h1>
     <h2>Identify what's in your food photos!</h2>
     <div id="upload-form">
-    <form action="/predict" enctype="multipart/form-data" method="post">
+    <form action="/api/predict" enctype="multipart/form-data" method="post">
         <input type="file" name="file">
         <input type="submit" value="Predict">
     </form>
@@ -120,7 +120,7 @@ async def home():
     </html>
     """
 
-@app.post("/predict", response_class=HTMLResponse)
+@app.post("/api/predict", response_class=HTMLResponse)
 async def predict(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
