@@ -8,8 +8,19 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 import base64
 import json
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Add CORS middleware to allow requests from any origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Add TrustedHostMiddleware to allow requests from localhost
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
@@ -60,7 +71,7 @@ def predicting(image, model):
     df = df.sort_values('F1 Scores')
     return pred_class, pred_conf, df
 
-@app.get("/api", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def home():
     return """
     <html>
@@ -111,7 +122,7 @@ async def home():
     <h1>Food Snap</h1>
     <h2>Identify what's in your food photos!</h2>
     <div id="upload-form">
-    <form action="/api/predict" enctype="multipart/form-data" method="post">
+    <form action="/predict" enctype="multipart/form-data" method="post">
         <input type="file" name="file">
         <input type="submit" value="Predict">
     </form>
@@ -120,7 +131,7 @@ async def home():
     </html>
     """
 
-@app.post("/api/predict", response_class=HTMLResponse)
+@app.post("/predict", response_class=HTMLResponse)
 async def predict(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
@@ -230,3 +241,16 @@ async def predict(file: UploadFile = File(...)):
     </body>
     </html>
     """)
+
+@app.post("/predictresult")
+async def predictresult(file: UploadFile = File(...)):
+    image = await file.read()
+    pred_class, pred_conf, df = predicting(image, model)
+    
+    return {
+        'class': pred_class,
+        'confidence': float(pred_conf)
+    }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='localhost', port=8000)
