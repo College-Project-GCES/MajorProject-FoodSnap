@@ -75,7 +75,7 @@ class _NutritionPageState extends State<NutritionPage> {
                 children: [
                   Text('Prediction Result: ${predictionData!["class"]}'),
                   Text('Confidence: ${predictionData!["confidence"]}'),
-                  Text('Confidence: ${predictionData!["confidence"]}'),
+                  
                 ],
               ),
           ],
