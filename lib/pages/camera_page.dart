@@ -70,7 +70,6 @@ class _CameraPageState extends State<CameraPage> {
       context,
       MaterialPageRoute(
         builder: (context) => NutritionPage(
-          image: _image,
           predictedFood: predictedFood,
         ),
       ),

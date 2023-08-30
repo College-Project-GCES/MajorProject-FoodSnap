@@ -1,124 +1,134 @@
+import 'dart:async';
+import 'dart:convert';
 
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
+Future<Album> fetchAlbum() async {
+  final response = await http
+      .get(Uri.parse('http:// 192.168.3.104:8000/predictresult'));
 
-class PredictPage extends StatefulWidget {
-  const PredictPage({Key? key}) : super(key: key);
-
-  @override
-  State<PredictPage> createState() => _PredictPage();
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return Album.fromJson(jsonDecode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
 }
 
-class _PredictPage extends State<PredictPage> {
+class Album {
+  final String name;
+   final int percentage;
+
+  const Album({
+    required this.name,
+    required this.percentage,
+
+  });
+
+ 
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      name: json['name'],
+      percentage: json['percentage'],
+     
+    );
   
- bool _loading = true;
-File? _imageFile;
-List? _output;
-  
+  }
+}
+
+class _MyAppState extends State<_MyAppState> {
+  late Future<Album> futureAlbum;
+
+  @override
+  void initState() {
+    super.initState();
+    futureAlbum = fetchAlbum();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Fetch Data Example',import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'album_model.dart'; // Import the Album class
+
+class AlbumPage extends StatefulWidget {
+  @override
+  _AlbumPageState createState() => _AlbumPageState();
+}
+
+class _AlbumPageState extends State<AlbumPage> {
+  List<Album> albums = []; // List to hold album data
+
+  Future<void> fetchAlbums() async {
+    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums'));
+    if (response.statusCode == 200) {
+      final List<dynamic> albumData = json.decode(response.body);
+      setState(() {
+        albums = albumData.map((albumJson) => Album.fromJson(albumJson)).toList();
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAlbums();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Color(0x004242),
-    body: Container(
-      padding: EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 50,),
-          Text('Geeky Bawa',
-          style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          SizedBox(height: 5,),
-          Text('Cats and Dogs Detector App',
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 30,
-            ),
-          ),
-          SizedBox(height: 50,),
-          Center(
-            child: _loading
-                ? Container(
-                    width: 350,
-                    child: Column(
-                      children: [
-                        Image.asset('assets/cat_dog_icon.png'),
-                        SizedBox(
-                          height: 50,
-                        )
-                      ],
-                    ),
-                  )
-                : Container(
-              child: Column(children: [
-                Container(
-                  height: 250,
-                  child: Image.file(_image),
-                ),
-                SizedBox(height: 20,),
-                _output != null ? Text('${_output[0]['label']}',
-               style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),) : Container(),
-                SizedBox(height: 10,)
-              ],),
-            ),
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {},
-        child: Container(
-        width: MediaQuery.of(context).size.width - 250,
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 18),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'Capture a Photo',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 250,
-                    alignment: Alignment.center,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 18),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'Select a Photo',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
+      appBar: AppBar(
+        title: Text('Albums'),
       ),
-    ),
-  );
-}}
+      body: ListView.builder(
+        itemCount: albums.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(albums[index].title),
+            subtitle: Text('User ID: ${albums[index].userId}, Album ID: ${albums[index].id}'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: AlbumPage(),
+  ));
+}
+
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Fetch Data Example'),
+        ),
+        body: Center(
+          child: FutureBuilder<Album>(
+            future: futureAlbum,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Text(snapshot.data!.name);
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+
+              // By default, show a loading spinner.
+              return const CircularProgressIndicator();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

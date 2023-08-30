@@ -8,8 +8,19 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 import base64
 import json
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Add CORS middleware to allow requests from any origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Add TrustedHostMiddleware to allow requests from localhost
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
@@ -60,7 +71,7 @@ def predicting(image, model):
     df = df.sort_values('F1 Scores')
     return pred_class, pred_conf, df
 
-@app.get("/api", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def home():
     return """
     <html>
@@ -111,7 +122,7 @@ async def home():
     <h1>Food Snap</h1>
     <h2>Identify what's in your food photos!</h2>
     <div id="upload-form">
-    <form action="/api/predict" enctype="multipart/form-data" method="post">
+    <form action="/predict" enctype="multipart/form-data" method="post">
         <input type="file" name="file">
         <input type="submit" value="Predict">
     </form>
@@ -120,7 +131,7 @@ async def home():
     </html>
     """
 
-@app.post("/api/predict")
+@app.post("/predict", response_class=HTMLResponse)
 async def predict(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
@@ -180,10 +191,64 @@ async def predict(file: UploadFile = File(...)):
             diabetic_recommendations += "<h4>Suggestions:</h4>"
             diabetic_recommendations += recommendation['suggestions'].replace("\n", "<br>")
             diabetic_recommendations += '</div>'  
-           return {
-        "prediction_class": pred_class,
-        "confidence": pred_conf.item(),
-        "class_confidences": class_confidences,
-        "top_5_predictions": df.to_dict(orient="records")
-    }
+            
+    return HTMLResponse(content=f"""
+    <html>
+    <head>
+    <style>
+    body {{
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        text-align: center;
+    }}
+    h2 {{
+        color: #007bff;
+    }}
+    img {{
+        margin-top: 1em;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }}
+    iframe {{
+        margin-top: 1em;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }}
+    </style>
+    <script>
+    function toggleInfo(food) {{
+        var infoDiv = document.getElementById('info-' + food);
+        var button = document.getElementById('more-info-button-' + food);
+        if (infoDiv.style.display === 'none') {{
+            infoDiv.style.display = 'block';
+            button.innerText = 'Less Info';
+        }} else {{
+            infoDiv.style.display = 'none';
+            button.innerText = 'More Info';
+        }}
+    }}
+    </script>
+    </head>
+    <body>
+    <h2>Prediction: {pred_class}</h2>
+    <p>Confidence: {pred_conf*100:.2f}%</p>
+    <img src="data:image/jpeg;base64,{image_base64}" alt="Uploaded Image" width="400">
+    <div>{chart_html}</div>
+    {nutrition_table}
+    {diabetic_recommendations}
+    </body>
+    </html>
+    """)
     
+@app.post("/predictresult")
+async def predictresult(file: UploadFile = File(...)):
+    image = await file.read()
+    pred_class, pred_conf, df = predicting(image, model)
+    
+    return {
+        'class': pred_class,
+        'confidence': float(pred_conf),
+        
+    }
