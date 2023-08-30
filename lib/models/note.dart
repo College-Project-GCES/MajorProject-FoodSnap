@@ -3,6 +3,22 @@ import 'package:path_provider/path_provider.dart';
 
 part 'note.g.dart';
 
+@HiveType(typeId: 0)
+class Details {
+  @HiveField(0)
+  String image;
+  @HiveField(1)
+  String productname;
+  @HiveField(2)
+  String percentage;
+
+  Details({
+    required this.image,
+    this.productname = 'ok',
+    this.percentage = 'ok',
+  });
+}
+
 @HiveType(typeId: 1)
 class NutritionData extends HiveObject {
   @HiveField(0)
