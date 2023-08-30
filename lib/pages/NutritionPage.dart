@@ -24,9 +24,8 @@ class _NutritionPageState extends State<NutritionPage> {
     var response = await request.send();
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
-      print('API Response: $responseBody');
       Map<String, dynamic> parsedData = json.decode(responseBody);
-
+      print('API Response: $responseBody');
       setState(() {
         predictionData = parsedData;
       });
@@ -35,24 +34,9 @@ class _NutritionPageState extends State<NutritionPage> {
     }
   }
 
-  Widget _buildDataTable(String title, String data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          data,
-          textAlign: TextAlign.left,
-          maxLines: null,
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
+  List<String> parseNutritionData(String nutritionData) {
+    List<String> lines = nutritionData.split('\n');
+    return lines.where((line) => line.isNotEmpty).toList();
   }
 
   @override
@@ -95,11 +79,29 @@ class _NutritionPageState extends State<NutritionPage> {
                   Text('Prediction Result: ${predictionData!["class"]}'),
                   Text('Confidence: ${predictionData!["confidence"]}'),
                   if (predictionData!["nutrition_table"] != null)
-                    _buildDataTable(
-                        "Nutrition Values", predictionData!["nutrition_table"]),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: parseNutritionData(
+                        predictionData!["nutrition_table"],
+                      ).map((field) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(field),
+                        );
+                      }).toList(),
+                    ),
                   if (predictionData!["diabetic_recommendations"] != null)
-                    _buildDataTable("Diabetic Recommendations",
-                        predictionData!["diabetic_recommendations"]),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: parseNutritionData(
+                        predictionData!["diabetic_recommendations"],
+                      ).map((field) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(field),
+                        );
+                      }).toList(),
+                    ),
                 ],
               ),
           ],
