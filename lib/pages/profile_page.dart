@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodsnap/auth/main_page.dart';
 import 'package:foodsnap/components/my_button.dart';
-import 'package:foodsnap/pages/camera_page.dart';
+import 'package:foodsnap/pages/camera.dart';
 import 'package:foodsnap/pages/home_page.dart';
 import 'package:foodsnap/widgets/bottom_navigation.dart';
 import 'dart:io';
