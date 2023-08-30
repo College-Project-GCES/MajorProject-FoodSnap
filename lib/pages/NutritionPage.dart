@@ -14,52 +14,23 @@ class NutritionPage extends StatefulWidget {
 }
 
 class _NutritionPageState extends State<NutritionPage> {
-  bool isLoading = false; // Add this line
-
-  String predictionResult = '';
-  String nutritionValues = ''; // Declare the variable here
-  String diabeticRecommendations = ''; // Declare the variable here
+  bool isLoading = false;
+  Map<String, dynamic>?
+      predictionData; // Change the type to Map<String, dynamic>?
 
   Future<void> predictFoodCategory(File image) async {
-    final url = Uri.parse(
-        'http://192.168.3.153:8000/predictresult'); // Replace with your FastAPI endpoint
+    final url = Uri.parse('http://192.168.3.104:8000/predictresult');
     var request = http.MultipartRequest('POST', url)
       ..files.add(await http.MultipartFile.fromPath('file', image.path));
 
     var response = await request.send();
     if (response.statusCode == 200) {
-      var responseJson = await http.Response.fromStream(response);
-
-      Map<String, dynamic> parsedData = json.decode(responseJson.body);
+      var responseBody = await response.stream.bytesToString();
+      Map<String, dynamic> parsedData = json.decode(responseBody);
 
       setState(() {
-        predictionResult = parsedData['class'];
-
-        nutritionValues = "Product Name: ${parsedData['product_name']}\n"
-            "Energy: ${parsedData['energy']} kJ\n"
-            "Carbohydrates: ${parsedData['carbohydrates']} g\n"
-            "Sugars: ${parsedData['sugars']} g\n"
-            "Proteins: ${parsedData['proteins']} g\n"
-            "Fat: ${parsedData['fat']} g\n"
-            "Fiber: ${parsedData['fiber']} g\n"
-            "Cholesterol: ${parsedData['cholesterol']} mg\n";
-
-        diabeticRecommendations =
-            "Recommendation Level: ${parsedData['recommendation']['label']}\n"
-            "Reason: ${parsedData['recommendation']['reason']}\n"
-            "Explanation: ${parsedData['recommendation']['explanation']}\n"
-            "Suggestions: ${parsedData['recommendation']['suggestion']}\n";
+        predictionData = parsedData;
       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ResultPage(
-            predictionResult: predictionResult,
-            nutritionValues: nutritionValues,
-            diabeticRecommendations: diabeticRecommendations,
-          ),
-        ),
-      );
     } else {
       print('Failed to predict food category');
     }
@@ -80,31 +51,33 @@ class _NutritionPageState extends State<NutritionPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
                 await predictFoodCategory(widget.imageFile);
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ResultPage(
-                      predictionResult:
-                          predictionResult, // Fetched prediction result
-                      nutritionValues:
-                          nutritionValues, // Constructed nutrition values string
-                      diabeticRecommendations:
-                          diabeticRecommendations, // Constructed diabetic recommendations string
-                    ),
-                  ),
-                );
+
+                setState(() {
+                  isLoading = false;
+                });
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: const Color(0xff58B773),
               ),
-              child: const Text('Perform Prediction'),
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('Perform Prediction'),
             ),
             const SizedBox(height: 20),
-            if (predictionResult.isNotEmpty)
-              Text('Prediction Result: $predictionResult'),
+            if (predictionData != null)
+              Column(
+                children: [
+                  Text('Prediction Result: ${predictionData!["class"]}'),
+                  Text('Confidence: ${predictionData!["confidence"]}'),
+                  Text('Confidence: ${predictionData!["confidence"]}'),
+                ],
+              ),
           ],
         ),
       ),

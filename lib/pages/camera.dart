@@ -132,3 +132,4 @@ class _CameraPage extends State<CameraPage> {
     }
   }
 }
+

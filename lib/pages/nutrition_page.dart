@@ -19,7 +19,7 @@ class _NutritionPageState extends State<NutritionPage> {
   String diabeticRecommendation = '';
 
   Future<void> fetchNutritionData() async {
-    final url = Uri.parse('http://192.168.18.12:8000/predict');
+    final url = Uri.parse('http://192.168.18.12:8000/predictresult');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
