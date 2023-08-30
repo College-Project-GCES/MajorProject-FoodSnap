@@ -16,5 +16,5 @@
 
 - Clone the project
 ```
-    git clone https://github.com/Pratigya-Dhakal/MajorProject-FoodSnap.git
+    git clone git@github.com:Pratigya-Dhakal/MajorProject-FoodSnap.git
 ```

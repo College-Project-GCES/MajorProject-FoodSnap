@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 class SquareTile extends StatelessWidget {
+  final String text;
   final String imagePath;
+
   const SquareTile({
     super.key,
+    required this.text,
     required this.imagePath,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      child: Container(
         width: 250,
         height: 50,
         padding: const EdgeInsets.all(10),
@@ -24,16 +28,16 @@ class SquareTile extends StatelessWidget {
             height: 30,
           ),
           const SizedBox(width: 30),
-          const Center(
-            child: Text(
-              "SignUp with Google",
-              style: TextStyle(
-                color: Color(0xff2DB040),
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
-              ),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xff2DB040),
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
             ),
           ),
-        ]));
+        ]),
+      ),
+    );
   }
 }
