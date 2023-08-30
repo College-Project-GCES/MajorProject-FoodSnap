@@ -120,7 +120,7 @@ async def home():
     </html>
     """
 
-@app.post("/api/predict", response_class=HTMLResponse)
+@app.post("/api/predict")
 async def predict(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
@@ -180,53 +180,10 @@ async def predict(file: UploadFile = File(...)):
             diabetic_recommendations += "<h4>Suggestions:</h4>"
             diabetic_recommendations += recommendation['suggestions'].replace("\n", "<br>")
             diabetic_recommendations += '</div>'  
-            
-    return HTMLResponse(content=f"""
-    <html>
-    <head>
-    <style>
-    body {{
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        text-align: center;
-    }}
-    h2 {{
-        color: #007bff;
-    }}
-    img {{
-        margin-top: 1em;
-        border: 1px solid #ccc;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-    }}
-    iframe {{
-        margin-top: 1em;
-        border: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-    }}
-    </style>
-    <script>
-    function toggleInfo(food) {{
-        var infoDiv = document.getElementById('info-' + food);
-        var button = document.getElementById('more-info-button-' + food);
-        if (infoDiv.style.display === 'none') {{
-            infoDiv.style.display = 'block';
-            button.innerText = 'Less Info';
-        }} else {{
-            infoDiv.style.display = 'none';
-            button.innerText = 'More Info';
-        }}
-    }}
-    </script>
-    </head>
-    <body>
-    <h2>Prediction: {pred_class}</h2>
-    <p>Confidence: {pred_conf*100:.2f}%</p>
-    <img src="data:image/jpeg;base64,{image_base64}" alt="Uploaded Image" width="400">
-    <div>{chart_html}</div>
-    {nutrition_table}
-    {diabetic_recommendations}
-    </body>
-    </html>
-    """)
+           return {
+        "prediction_class": pred_class,
+        "confidence": pred_conf.item(),
+        "class_confidences": class_confidences,
+        "top_5_predictions": df.to_dict(orient="records")
+    }
+    

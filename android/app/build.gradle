@@ -51,7 +51,11 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-
+       
+         aaptOptions {
+    noCompress 'tflite'
+    noCompress 'lite'
+                   }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
