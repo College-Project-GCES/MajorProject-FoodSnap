@@ -10,7 +10,8 @@ class ApiService {
       var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.usersEndpoint);
       var response = await http.get(url);
       if (response.statusCode == 200) {
-        List<FoodPredictionModel> _model =  FoodPredictionModelFromJson(response.body);
+        List<FoodPredictionModel> _model =
+            FoodPredictionModelFromJson(response.body);
         return _model;
       }
     } catch (e) {

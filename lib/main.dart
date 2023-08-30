@@ -1,12 +1,24 @@
+import 'dart:io';
+
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:foodsnap/pages/home_page.dart';
 import 'package:foodsnap/pages/welcome.dart';
+import 'package:foodsnap/models/note.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Directory directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
+  Hive.registerAdapter(NutritionDataAdapter());
+  Hive.registerAdapter(DiabetesRecommendationAdapter());
+
+  await Hive.openBox<NutritionData>('nutritionData');
+  await Hive.openBox<DiabetesRecommendation>('diabetesRecommendation');
   await Firebase.initializeApp();
 
   runApp(const MyApp());
