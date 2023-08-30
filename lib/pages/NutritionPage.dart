@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:foodsnap/pages/result_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class NutritionPage extends StatefulWidget {
   final File imageFile;
 
-  const NutritionPage({super.key, required this.imageFile});
+  const NutritionPage({Key? key, required this.imageFile}) : super(key: key);
 
   @override
   State<NutritionPage> createState() => _NutritionPageState();
@@ -15,8 +14,7 @@ class NutritionPage extends StatefulWidget {
 
 class _NutritionPageState extends State<NutritionPage> {
   bool isLoading = false;
-  Map<String, dynamic>?
-      predictionData; // Change the type to Map<String, dynamic>?
+  Map<String, dynamic>? predictionData;
 
   Future<void> predictFoodCategory(File image) async {
     final url = Uri.parse('http://192.168.3.104:8000/predictresult');
@@ -26,6 +24,7 @@ class _NutritionPageState extends State<NutritionPage> {
     var response = await request.send();
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
+      print('API Response: $responseBody');
       Map<String, dynamic> parsedData = json.decode(responseBody);
 
       setState(() {
@@ -34,6 +33,26 @@ class _NutritionPageState extends State<NutritionPage> {
     } else {
       print('Failed to predict food category');
     }
+  }
+
+  Widget _buildDataTable(String title, String data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          data,
+          textAlign: TextAlign.left,
+          maxLines: null,
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   @override
@@ -75,7 +94,12 @@ class _NutritionPageState extends State<NutritionPage> {
                 children: [
                   Text('Prediction Result: ${predictionData!["class"]}'),
                   Text('Confidence: ${predictionData!["confidence"]}'),
-                  
+                  if (predictionData!["nutrition_table"] != null)
+                    _buildDataTable(
+                        "Nutrition Values", predictionData!["nutrition_table"]),
+                  if (predictionData!["diabetic_recommendations"] != null)
+                    _buildDataTable("Diabetic Recommendations",
+                        predictionData!["diabetic_recommendations"]),
                 ],
               ),
           ],

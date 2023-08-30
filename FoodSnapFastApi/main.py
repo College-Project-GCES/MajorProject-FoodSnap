@@ -247,8 +247,42 @@ async def predictresult(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
     
+    nutrition_values = retrieve_nutrition_values(pred_class)
+    nutrition_table = ""
+    if nutrition_values is not None and not nutrition_values.empty:
+        nutrition_table += "Nutrition Values:\n"
+    nutrition_table += f"Product Name: {nutrition_values['product_name'].iloc[0]}\n"
+    nutrition_table += f"Energy: {nutrition_values['energy_100g'].iloc[0]} kJ\n"
+    nutrition_table += f"Carbohydrates: {nutrition_values['carbohydrates_100g'].iloc[0]} g\n"
+    nutrition_table += f"Sugars: {nutrition_values['sugars_100g'].iloc[0]} g\n"
+    nutrition_table += f"Proteins: {nutrition_values['proteins_100g'].iloc[0]} g\n"
+    nutrition_table += f"Fat: {nutrition_values['fat_100g'].iloc[0]} g\n"
+    nutrition_table += f"Fiber: {nutrition_values['fiber_100g'].iloc[0]} g\n"
+    nutrition_table += f"Cholesterol: {nutrition_values['cholesterol_100g'].iloc[0]} mg\n"
+
+        
+    recommendation = get_diabetic_recommendation(pred_class)
+    diabetic_recommendations = ""
+    if recommendation is not None:
+        diabetic_recommendations += "Diabetic Recommendations:\n"
+        diabetic_recommendations += f"Recommendation Level: {recommendation['level']}\n"
+        
+        if 'reason' in recommendation:
+            diabetic_recommendations += f"Reason: {recommendation['reason']}\n"
+        
+        if 'explanation' in recommendation:
+            diabetic_recommendations += f"Explanation: {recommendation['explanation']}\n"
+        
+        if 'suggestions' in recommendation:
+            diabetic_recommendations += "Suggestions:\n" + recommendation['suggestions'].replace("\n", "\n")
+
     return {
         'class': pred_class,
-        'confidence': float(pred_conf),
-        
+        'confidence': float(pred_conf*100),
+        'nutrition_table': nutrition_table,
+        'diabetic_recommendations': diabetic_recommendations
     }
+
+
+if _name_ == "_main_":
+    uvicorn.run(app, host='localhost', port=8000)
