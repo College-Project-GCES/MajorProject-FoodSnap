@@ -17,7 +17,7 @@ class _NutritionPageState extends State<NutritionPage> {
   Map<String, dynamic>? predictionData;
 
   Future<void> predictFoodCategory(File image) async {
-    final url = Uri.parse('http://192.168.3.104:8000/predictresult');
+    final url = Uri.parse('http://192.168.1.85:55638/predictresult');
     var request = http.MultipartRequest('POST', url)
       ..files.add(await http.MultipartFile.fromPath('file', image.path));
 
@@ -32,6 +32,7 @@ class _NutritionPageState extends State<NutritionPage> {
     } else {
       print('Failed to predict food category');
     }
+    
   }
 
   List<String> parseNutritionData(String nutritionData) {
@@ -42,10 +43,28 @@ class _NutritionPageState extends State<NutritionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nutrition Prediction'),
+       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 189, 236, 241),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.asset(
+              'assets/images/FoodSnapLogo.png',
+              height: 50,
+              width: 50,
+            ),
+            const Text(
+              ' Nutrition Prediction ',
+              style: TextStyle(
+                color: Color.fromARGB(255, 13, 46, 31),
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
       ),
+      
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

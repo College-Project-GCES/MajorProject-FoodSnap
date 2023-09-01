@@ -241,7 +241,7 @@ async def predict(file: UploadFile = File(...)):
     </body>
     </html>
     """)
-    
+
 @app.post("/predictresult")
 async def predictresult(file: UploadFile = File(...)):
     image = await file.read()
@@ -285,4 +285,4 @@ async def predictresult(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host='localhost', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=3000)
