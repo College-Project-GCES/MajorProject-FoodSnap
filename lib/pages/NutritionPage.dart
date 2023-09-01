@@ -17,7 +17,7 @@ class _NutritionPageState extends State<NutritionPage> {
   Map<String, dynamic>? predictionData;
 
   Future<void> predictFoodCategory(File image) async {
-    final url = Uri.parse('http://192.168.3.104:8000/predictresult');
+    final url = Uri.parse('http://192.168.1.83:8000/predictresult');
     var request = http.MultipartRequest('POST', url)
       ..files.add(await http.MultipartFile.fromPath('file', image.path));
 
@@ -32,11 +32,6 @@ class _NutritionPageState extends State<NutritionPage> {
     } else {
       print('Failed to predict food category');
     }
-  }
-
-  List<String> parseNutritionData(String nutritionData) {
-    List<String> lines = nutritionData.split('\n');
-    return lines.where((line) => line.isNotEmpty).toList();
   }
 
   @override
@@ -74,39 +69,34 @@ class _NutritionPageState extends State<NutritionPage> {
             ),
             const SizedBox(height: 20),
             if (predictionData != null)
-              Column(
-                children: [
-                  Text('Prediction Result: ${predictionData!["class"]}'),
-                  Text('Confidence: ${predictionData!["confidence"]}'),
-                  if (predictionData!["nutrition_table"] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: parseNutritionData(
-                        predictionData!["nutrition_table"],
-                      ).map((field) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(field),
-                        );
-                      }).toList(),
-                    ),
-                  if (predictionData!["diabetic_recommendations"] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: parseNutritionData(
-                        predictionData!["diabetic_recommendations"],
-                      ).map((field) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(field),
-                        );
-                      }).toList(),
-                    ),
-                ],
+              Expanded(
+                child: ListView(
+                  children: [
+                    Text('Prediction Result: ${predictionData!["class"]}'),
+                    Text('Confidence: ${predictionData!["confidence"]}'),
+                    if (predictionData!["nutrition_diabetic_info"] != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: parseNutritionData(
+                          predictionData!["nutrition_diabetic_info"],
+                        ).map((field) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(field),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
               ),
           ],
         ),
       ),
     );
+  }
+
+  List<String> parseNutritionData(String nutritionData) {
+    List<String> lines = nutritionData.split('\n');
+    return lines.where((line) => line.isNotEmpty).toList();
   }
 }
