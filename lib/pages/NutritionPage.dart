@@ -17,7 +17,7 @@ class _NutritionPageState extends State<NutritionPage> {
   Map<String, dynamic>? predictionData;
 
   Future<void> predictFoodCategory(File image) async {
-    final url = Uri.parse('http://192.168.1.85:55638/predictresult');
+    final url = Uri.parse('http://192.168.1.85:8000/predictresult');
     var request = http.MultipartRequest('POST', url)
       ..files.add(await http.MultipartFile.fromPath('file', image.path));
 
@@ -32,19 +32,13 @@ class _NutritionPageState extends State<NutritionPage> {
     } else {
       print('Failed to predict food category');
     }
-    
-  }
-
-  List<String> parseNutritionData(String nutritionData) {
-    List<String> lines = nutritionData.split('\n');
-    return lines.where((line) => line.isNotEmpty).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 189, 236, 241),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF2DB040), // Set the app bar color
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -53,24 +47,47 @@ class _NutritionPageState extends State<NutritionPage> {
               height: 50,
               width: 50,
             ),
-            const Text(
-              ' Nutrition Prediction ',
+            Text(
+              'Nutrition of Food',
               style: TextStyle(
-                color: Color.fromARGB(255, 13, 46, 31),
-                fontSize: 16,
+                color: Colors.white, // Set text color
+                fontSize: 18, // Increase font size
+                fontWeight: FontWeight.bold, // Add bold font weight
               ),
             ),
           ],
         ),
         centerTitle: true,
+        elevation: 4, // Add elevation/shadow to the app bar
       ),
-      
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.file(widget.imageFile, width: 300, height: 300),
-            const SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white, // Set container background color
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0, 3), // Add shadow to the container
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.file(
+                  widget.imageFile,
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 setState(() {
@@ -84,48 +101,71 @@ class _NutritionPageState extends State<NutritionPage> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color(0xff58B773),
+                primary: Color(0xFF2DB040), // Set button color
+                onPrimary: Colors.white, // Set text color
+                elevation: 4, // Add elevation to the button
               ),
               child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Perform Prediction'),
+                  ? CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : Text(
+                      'Perform Prediction',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             if (predictionData != null)
-              Column(
-                children: [
-                  Text('Prediction Result: ${predictionData!["class"]}'),
-                  Text('Confidence: ${predictionData!["confidence"]}'),
-                  if (predictionData!["nutrition_table"] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: parseNutritionData(
-                        predictionData!["nutrition_table"],
-                      ).map((field) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(field),
-                        );
-                      }).toList(),
+              Expanded(
+                child: ListView(
+                  children: [
+                    Text(
+                      'Prediction Result: ${predictionData!["class"]}',
+                      style: TextStyle(
+                        color: Color(0xFFE65100), // Set text color
+                        fontSize: 20, // Increase font size
+                        fontWeight: FontWeight.bold, // Add bold font weight
+                      ),
                     ),
-                  if (predictionData!["diabetic_recommendations"] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: parseNutritionData(
-                        predictionData!["diabetic_recommendations"],
-                      ).map((field) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(field),
-                        );
-                      }).toList(),
+                    Text(
+                      'Confidence: ${predictionData!["confidence"]}',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                ],
+                    if (predictionData!["nutrition_diabetic_info"] != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: parseNutritionData(
+                          predictionData!["nutrition_diabetic_info"],
+                        ).map((field) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              field,
+                              style: TextStyle(
+                                color: Colors.teal, // Set text color
+                                fontSize: 14, // Adjust font size
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
               ),
           ],
         ),
       ),
     );
+  }
+
+  List<String> parseNutritionData(String nutritionData) {
+    List<String> lines = nutritionData.split('\n');
+    return lines.where((line) => line.isNotEmpty).toList();
   }
 }

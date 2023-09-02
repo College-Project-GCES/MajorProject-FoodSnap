@@ -28,6 +28,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           .sendPasswordResetEmail(email: emailController.text.trim());
 
       /// Showing Message That user enters email correctly and reset password will be sent
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Password reset link sent! Check your Email"),
       ));
@@ -41,6 +42,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       print(e);
 
       /// Showing Error with SnackBar if the user enter the wrong Email or Enter nothing
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message.toString())));
     }

@@ -1,13 +1,13 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse
 import tensorflow as tf
 import altair as alt
+import uvicorn
 from utils import load_and_prep, get_classes
 import pandas as pd
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 import base64
 import json
-import os
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,7 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Add TrustedHostMiddleware to allow requests from localhost
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
@@ -35,23 +34,20 @@ with open('diabetic.json', 'r') as file:
 
 nutrition_data = pd.read_csv('nutrition.csv')
 
+# Define functions for nutrition and recommendation retrieval
 def retrieve_nutrition_values(food_category):
-    # Preprocess the food_category: remove special characters, spaces, and convert to lowercase
     food_category_processed = food_category.lower().replace("-", "").replace("_", "").replace(" ", "")
-    
     nutrition_values = nutrition_data[nutrition_data['product_name'].str.lower().str.replace("-", "").str.replace("_", "").str.replace(" ", "") == food_category_processed]
-    if nutrition_values.empty:
-        return None  # Return None if no nutrition values are available
-    return nutrition_values
+    return nutrition_values if not nutrition_values.empty else None
 
 def get_diabetic_recommendation(food_category):
     food_category_lower = food_category.lower()
-    
     for category in diabetic_recommendations:
         if category['name'].lower() == food_category_lower or food_category_lower in [name.lower() for name in category['alternateNames']]:
             return category
-    return None  # Return None if no diabetic recommendation is available
+    return None
 
+# Define a function for image prediction
 def predicting(image, model):
     image = load_and_prep(image)
     image = tf.cast(tf.expand_dims(image, axis=0), tf.int16)
@@ -60,9 +56,7 @@ def predicting(image, model):
     pred_conf = tf.reduce_max(preds[0])
     top_5_i = sorted((preds.argsort())[0][-5:][::-1])
     values = preds[0][top_5_i] * 100
-    labels = []
-    for x in range(5):
-        labels.append(class_names[top_5_i[x]])
+    labels = [class_names[top_5_i[x]] for x in range(5)]
     df = pd.DataFrame({
         "Top 5 Predictions": labels,
         "F1 Scores": values,
@@ -71,6 +65,7 @@ def predicting(image, model):
     df = df.sort_values('F1 Scores')
     return pred_class, pred_conf, df
 
+# Define the home route
 @app.get("/", response_class=HTMLResponse)
 async def home():
     return """
@@ -131,11 +126,12 @@ async def home():
     </html>
     """
 
+# Define the prediction route
 @app.post("/predict", response_class=HTMLResponse)
 async def predict(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
-     
+    
     # Convert the image data to Base64
     image_base64 = base64.b64encode(image).decode('utf-8')
     
@@ -146,6 +142,7 @@ async def predict(file: UploadFile = File(...)):
         text='F1 Scores'
     ).properties(width=600, height=400)
     chart_html = chart.to_html()
+    
     nutrition_values = retrieve_nutrition_values(pred_class)
     nutrition_table = ""
     if nutrition_values is not None and not nutrition_values.empty:
@@ -242,47 +239,44 @@ async def predict(file: UploadFile = File(...)):
     </html>
     """)
 
-@app.post("/predictresult")
+# Define a route to return prediction results as JSON
+@app.post("/predictresult", response_class=JSONResponse)
 async def predictresult(file: UploadFile = File(...)):
     image = await file.read()
     pred_class, pred_conf, df = predicting(image, model)
     
     nutrition_values = retrieve_nutrition_values(pred_class)
-    nutrition_table = ""
+    nutrition_info = ""
     if nutrition_values is not None and not nutrition_values.empty:
-        nutrition_table += "Nutrition Values:\n"
-    nutrition_table += f"Product Name: {nutrition_values['product_name'].iloc[0]}\n"
-    nutrition_table += f"Energy: {nutrition_values['energy_100g'].iloc[0]} kJ\n"
-    nutrition_table += f"Carbohydrates: {nutrition_values['carbohydrates_100g'].iloc[0]} g\n"
-    nutrition_table += f"Sugars: {nutrition_values['sugars_100g'].iloc[0]} g\n"
-    nutrition_table += f"Proteins: {nutrition_values['proteins_100g'].iloc[0]} g\n"
-    nutrition_table += f"Fat: {nutrition_values['fat_100g'].iloc[0]} g\n"
-    nutrition_table += f"Fiber: {nutrition_values['fiber_100g'].iloc[0]} g\n"
-    nutrition_table += f"Cholesterol: {nutrition_values['cholesterol_100g'].iloc[0]} mg\n"
-
-        
+        nutrition_info += "Nutrition Values:\n"
+        nutrition_info += f"Product Name: {nutrition_values['product_name'].iloc[0]}\n"
+        nutrition_info += f"Energy: {nutrition_values['energy_100g'].iloc[0]} kJ\n"
+        nutrition_info += f"Carbohydrates: {nutrition_values['carbohydrates_100g'].iloc[0]} g\n"
+        nutrition_info += f"Sugars: {nutrition_values['sugars_100g'].iloc[0]} g\n"
+        nutrition_info += f"Proteins: {nutrition_values['proteins_100g'].iloc[0]} g\n"
+        nutrition_info += f"Fat: {nutrition_values['fat_100g'].iloc[0]} g\n"
+        nutrition_info += f"Fiber: {nutrition_values['fiber_100g'].iloc[0]} g\n"
+        nutrition_info += f"Cholesterol: {nutrition_values['cholesterol_100g'].iloc[0]} mg\n"
+    
     recommendation = get_diabetic_recommendation(pred_class)
-    diabetic_recommendations = ""
+    diabetic_info = ""
     if recommendation is not None:
-        diabetic_recommendations += "Diabetic Recommendations:\n"
-        diabetic_recommendations += f"Recommendation Level: {recommendation['level']}\n"
-        
+        diabetic_info += "Diabetic Recommendations:\n"
+        diabetic_info += f"Recommendation Level: {recommendation['level']}\n"
         if 'reason' in recommendation:
-            diabetic_recommendations += f"Reason: {recommendation['reason']}\n"
-        
+            diabetic_info += f"Reason: {recommendation['reason']}\n"
         if 'explanation' in recommendation:
-            diabetic_recommendations += f"Explanation: {recommendation['explanation']}\n"
-        
+            diabetic_info += f"Explanation: {recommendation['explanation']}\n"
         if 'suggestions' in recommendation:
-            diabetic_recommendations += "Suggestions:\n" + recommendation['suggestions'].replace("\n", "\n")
+            diabetic_info += f"Suggestions: {recommendation['suggestions']}\n"
+    
+    combined_info = f"{nutrition_info}\n{diabetic_info}"
 
     return {
         'class': pred_class,
-        'confidence': float(pred_conf*100),
-        'nutrition_table': nutrition_table,
-        'diabetic_recommendations': diabetic_recommendations
+        'confidence': float(pred_conf * 100),
+        'nutrition_diabetic_info': combined_info
     }
 
-
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port=3000)
+    uvicorn.run(app, host='0.0.0.0', port=8000)

@@ -13,10 +13,7 @@ class BottomNavBarWidget extends StatelessWidget {
       unselectedItemColor: const Color(0xff1A5C23),
       selectedItemColor: const Color(0xffD3BA66),
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
+       
         BottomNavigationBarItem(
           icon: Icon(Icons.camera),
           label: 'Camera',

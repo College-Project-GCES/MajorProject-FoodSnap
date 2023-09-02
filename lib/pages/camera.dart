@@ -1,26 +1,23 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:camera/camera.dart';
-import 'package:foodsnap/components/custom_icon.dart';
-import 'package:foodsnap/components/my_button.dart';
 import 'NutritionPage.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({Key? key}) : super(key: key);
 
   @override
-  State<CameraPage> createState() => _CameraPage();
+  State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPage extends State<CameraPage> {
+class _CameraPageState extends State<CameraPage> {
   File? imageFile;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 189, 236, 241),
+        backgroundColor:const Color(0xFF2DB040),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -30,9 +27,9 @@ class _CameraPage extends State<CameraPage> {
               width: 50,
             ),
             const Text(
-              ' select image ',
+              'Select an Image',
               style: TextStyle(
-                color: Color.fromARGB(255, 13, 46, 31),
+                color: Color.fromARGB(255, 255, 255, 255),
                 fontSize: 16,
               ),
             ),
@@ -64,14 +61,30 @@ class _CameraPage extends State<CameraPage> {
                 height: 480,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 155, 221, 131),
-                  border: Border.all(
-                      width: 8, color: const Color.fromARGB(31, 55, 104, 64)),
+                  color: const Color(0xFF9BDD83),
+                  border: Border.all(width: 8, color: const Color(0x1F376840)),
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                child: const Text(
-                  'select image',
-                  style: TextStyle(fontSize: 26),
+                child: TextButton(
+                  onPressed: () => getImage(source: ImageSource.gallery),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Select Image',
+                        style: TextStyle(
+                          fontSize: 26,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             const SizedBox(
@@ -81,17 +94,49 @@ class _CameraPage extends State<CameraPage> {
               children: [
                 Expanded(
                   child: TextButton(
-                      onPressed: () => getImage(source: ImageSource.camera),
-                      child: const MyButton(
-                        text: 'Camera',
-                      )),
+                    onPressed: () => getImage(source: ImageSource.camera),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.photo_camera,
+                          color: Color(0xFF2DB040),
+                          size: 40,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Camera',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF2DB040),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: TextButton(
-                      onPressed: () => getImage(source: ImageSource.gallery),
-                      child: const MyButton(
-                        text: 'Gallery',
-                      )),
+                    onPressed: () => getImage(source: ImageSource.gallery),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.image,
+                          color: Color(0xFF2DB040),
+                          size: 40,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Gallery',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF2DB040),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -105,8 +150,33 @@ class _CameraPage extends State<CameraPage> {
                       );
                     }
                   },
-                  child: const MyButton(
-                    text: 'Predict',
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(const Color(0xFF2DB040)),
+                    padding: MaterialStateProperty.all(
+                      const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                    ),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Predict',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -119,11 +189,11 @@ class _CameraPage extends State<CameraPage> {
 
   void getImage({required ImageSource source}) async {
     final file = await ImagePicker().pickImage(
-        source: source,
-        maxWidth: 640,
-        maxHeight: 480,
-        imageQuality: 70 //0 - 100
-        );
+      source: source,
+      maxWidth: 640,
+      maxHeight: 480,
+      imageQuality: 70,
+    );
 
     if (file?.path != null) {
       setState(() {
@@ -132,4 +202,5 @@ class _CameraPage extends State<CameraPage> {
     }
   }
 }
+
 
