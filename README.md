@@ -18,3 +18,10 @@
 ```
     git clone git@github.com:Pratigya-Dhakal/MajorProject-FoodSnap.git
 ```
+- flutter pub get
+- flutter run
+  
+
+https://github.com/Pratigya-Dhakal/MajorProject-FoodSnap/assets/53457697/e3885d75-73b1-4e9f-ab57-a042778f6d28
+https://github.com/Pratigya-Dhakal/MajorProject-FoodSnap/assets/53457697/ab18820b-2216-4a05-97f8-6d2ef56f90e4
+
