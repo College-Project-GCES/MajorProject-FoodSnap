@@ -120,44 +120,119 @@ class _NutritionPageState extends State<NutritionPage> {
             ),
             SizedBox(height: 20),
             if (predictionData != null)
-              Expanded(
-                child: ListView(
-                  children: [
-                    Text(
-                      'Prediction Result: ${predictionData!["class"]}',
-                      style: TextStyle(
-                        color: Color(0xFFE65100), // Set text color
-                        fontSize: 20, // Increase font size
-                        fontWeight: FontWeight.bold, // Add bold font weight
-                      ),
+  Expanded(
+    child: SingleChildScrollView(
+      child: Table(
+        border: TableBorder.all(color: Colors.teal), // Add border to the table
+        columnWidths: {
+          0: FractionColumnWidth(0.5), // Adjust the column widths as needed
+          1: FractionColumnWidth(0.5),
+        },
+        children: [
+          TableRow(
+            children: [
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Prediction Result:',
+                    
+                    style: TextStyle(
+                      color: Color(0xFFE65100),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Text(
-                      'Confidence: ${predictionData!["confidence"]}',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    if (predictionData!["nutrition_diabetic_info"] != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: parseNutritionData(
-                          predictionData!["nutrition_diabetic_info"],
-                        ).map((field) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              field,
-                              style: TextStyle(
-                                color: Colors.teal, // Set text color
-                                fontSize: 14, // Adjust font size
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                  ],
+                  ),
                 ),
               ),
+                TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    ' ${predictionData!["class"]}',
+                    
+                    style: TextStyle(
+                      color: Color(0xFFE65100),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+             
+            ],
+          ),
+
+          TableRow(
+            children: [
+             
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Confidence:',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+               TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    ': ${predictionData!["confidence"]}',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          TableRow(
+            children: [
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Information',
+                    style: TextStyle(
+                      color: Colors.teal,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: parseNutritionData(
+                      predictionData!["nutrition_diabetic_info"],
+                    ).map((field) {
+                      return Text(
+                        field,
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 14,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  ),
+
+              
           ],
         ),
       ),

@@ -29,7 +29,7 @@ class _CameraPageState extends State<CameraPage> {
             const Text(
               'Select an Image',
               style: TextStyle(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: Color.fromARGB(255, 236, 240, 238),
                 fontSize: 16,
               ),
             ),
